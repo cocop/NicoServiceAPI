@@ -166,7 +166,7 @@ namespace NicoServiceAPI.NicoVideo
         /// <summary>>動画の詳細情報を取得する、情報は0番目の配列に格納される</summary>
         /// <param name="VideoInfo">情報取得する動画を指定する</param>
         /// <param name="IsHtml">合わせてHtmlから情報を取得するか、現在動画説明文のみ</param>
-        public VideoInfoResponse GetVideoInfo(VideoInfo VideoInfo, bool IsHtml = true)
+        public VideoInfoResponse DownloadVideoInfo(VideoInfo VideoInfo, bool IsHtml = true)
         {
             try
             {
@@ -193,6 +193,55 @@ namespace NicoServiceAPI.NicoVideo
             {
                 throw new WebException("動画情報取得APIにアクセス出来ませんでした", _VideoInfoAPIAccessError);
             }
+        }
+
+        /// <summary>>動画の詳細情報を取得するストリームを取得する、情報は0番目の配列に格納される</summary>
+        /// <param name="VideoInfo">情報取得する動画を指定する</param>
+        /// <param name="IsHtml">合わせてHtmlから情報を取得するか、現在動画説明文のみ</param>
+        public Connection.Streams<VideoInfoResponse> GetVideoInfoDownloadStream(VideoInfo VideoInfo, bool IsHtml = true)
+        {
+            var streamDataList = new List<Connection.StreamData>();
+            VideoInfoResponse lastData = null;
+
+            streamDataList.Add(
+                new Connection.StreamData()
+                {
+                    StreamType = Connection.StreamType.Read,
+                    GetStream = (size) => client.OpenDownloadStream(String.Format(ApiUrls.GetVideoInfo, VideoInfo.ID)),
+                    SetReadData = (data) =>
+                    {
+                        var serialize = new XmlSerializer(typeof(Serial.VideoInfoResponse));
+                        var serial = (Serial.VideoInfoResponse)serialize.Deserialize(
+                            client.OpenDownloadStream(
+                                String.Format(ApiUrls.GetVideoInfo, VideoInfo.ID)));
+
+                        lastData = Serial.Converter.ConvertVideoInfoResponse(serial, client);
+                    }
+                });
+
+            if (IsHtml)//HTMLから取得する
+            {
+                streamDataList.Add(
+                    new Connection.StreamData()
+                    {
+                        StreamType = Connection.StreamType.Read,
+                        GetStream = (size) => client.OpenDownloadStream(ApiUrls.Host + "watch/" + VideoInfo.ID),
+                        SetReadData = (data) =>
+                        {
+                            var html = Encoding.UTF8.GetString(data);
+                            var htmls = html.Split(
+                                SplitHtmlText.VideoDescription,
+                                StringSplitOptions.RemoveEmptyEntries);
+
+                            if (htmls.Length == 3)
+                                lastData.VideoInfos[0].Description = htmls[1];
+                        },
+                    });
+            }
+
+            return new Connection.Streams<VideoInfoResponse>(
+                streamDataList.ToArray(),
+                () => lastData);
         }
 
 

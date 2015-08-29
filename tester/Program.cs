@@ -17,7 +17,7 @@ namespace tester
             var li = ns.Login("cypsf18611@yahoo.co.jp", "asdfghjkl");
             var vs = ns.GetVideoService();
             var vi = new VideoInfo("sm26983122");
-            var vi2 = vs.GetVideoInfo(vi);
+            var vi2 = vs.DownloadVideoInfo(vi);
         }
     }
 }
