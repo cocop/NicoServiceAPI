@@ -163,6 +163,11 @@ namespace NicoServiceAPI.NicoVideo
                 });
         }
 
+        public void DownloadMylist()
+        {
+
+        }
+
         /// <summary>>動画の詳細情報を取得する、情報は0番目の配列に格納される</summary>
         /// <param name="VideoInfo">情報取得する動画を指定する</param>
         /// <param name="IsHtml">合わせてHtmlから情報を取得するか、現在動画説明文のみ</param>
