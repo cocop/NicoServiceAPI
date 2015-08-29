@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{DC0F6234-7AA8-4F2C-9125-9E458528ECCB}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{C27575DB-B5D1-4951-AEFD-33499B0BDE38}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NicoServiceAPI</RootNamespace>
-    <AssemblyName>NicoServiceAPI</AssemblyName>
+    <RootNamespace>tester</RootNamespace>
+    <AssemblyName>tester</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,8 +34,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,40 +41,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApiUrls.cs" />
-    <Compile Include="Connection\Client.cs" />
-    <Compile Include="Connection\StreamData.cs" />
-    <Compile Include="Connection\Streams.cs" />
-    <Compile Include="Connection\StreamType.cs" />
-    <Compile Include="NicoService.cs" />
-    <Compile Include="NicoVideo\Comment.cs" />
-    <Compile Include="NicoVideo\CommentResponse.cs" />
-    <Compile Include="NicoVideo\PostTime.cs" />
-    <Compile Include="NicoVideo\SearchOption.cs" />
-    <Compile Include="NicoVideo\SearchType.cs" />
-    <Compile Include="NicoVideo\Serial\Comment.cs" />
-    <Compile Include="NicoVideo\Serial\CommentResponse.cs" />
-    <Compile Include="NicoVideo\Serial\Converter.cs" />
-    <Compile Include="NicoVideo\Serial\Error.cs" />
-    <Compile Include="NicoVideo\Serial\Leaf.cs" />
-    <Compile Include="NicoVideo\Serial\Tag.cs" />
-    <Compile Include="NicoVideo\Serial\Tags.cs" />
-    <Compile Include="NicoVideo\Serial\Thread.cs" />
-    <Compile Include="NicoVideo\Serial\VideoInfo.cs" />
-    <Compile Include="NicoVideo\Serial\VideoInfoResponse.cs" />
-    <Compile Include="NicoVideo\Serial\ViewCounter.cs" />
-    <Compile Include="NicoVideo\SortOrder.cs" />
-    <Compile Include="NicoVideo\SortTarget.cs" />
-    <Compile Include="NicoVideo\Status.cs" />
-    <Compile Include="NicoVideo\Tag.cs" />
-    <Compile Include="NicoVideo\Thumbnail.cs" />
-    <Compile Include="NicoVideo\VideoInfo.cs" />
-    <Compile Include="NicoVideo\VideoInfoResponse.cs" />
-    <Compile Include="NicoVideo\VideoService.cs" />
-    <Compile Include="NicoVideo\VideoTime.cs" />
-    <Compile Include="PostTexts.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SplitHtmlText.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NicoServiceAPI\NicoServiceAPI.csproj">
+      <Project>{dc0f6234-7aa8-4f2c-9125-9e458528eccb}</Project>
+      <Name>NicoServiceAPI</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

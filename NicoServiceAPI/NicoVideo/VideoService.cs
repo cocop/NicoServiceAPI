@@ -14,8 +14,6 @@ namespace NicoServiceAPI.NicoVideo
     /******************************************/
     public class VideoService
     {
-
-
         Connection.Client client;
 
         /******************************************/
@@ -165,6 +163,38 @@ namespace NicoServiceAPI.NicoVideo
                 });
         }
 
+        /// <summary>>動画の詳細情報を取得する、情報は0番目の配列に格納される</summary>
+        /// <param name="VideoInfo">情報取得する動画を指定する</param>
+        /// <param name="IsHtml">合わせてHtmlから情報を取得するか、現在動画説明文のみ</param>
+        public VideoInfoResponse GetVideoInfo(VideoInfo VideoInfo, bool IsHtml = true)
+        {
+            try
+            {
+                var serialize = new XmlSerializer(typeof(Serial.VideoInfoResponse));
+                var serial = (Serial.VideoInfoResponse)serialize.Deserialize(
+                    client.OpenDownloadStream(
+                        String.Format(ApiUrls.GetVideoInfo, VideoInfo.ID)));
+                var result = Serial.Converter.ConvertVideoInfoResponse(serial, client);
+
+                if (IsHtml)
+                {
+                    var html = Encoding.UTF8.GetString(client.Download(ApiUrls.Host + "watch/" + VideoInfo.ID));
+                    var htmls = html.Split(
+                        SplitHtmlText.VideoDescription,
+                        StringSplitOptions.RemoveEmptyEntries);
+
+                    if (htmls.Length == 3)//HTMLから取得する
+                        result.VideoInfos[0].Description = htmls[1];
+                }
+
+                return result;
+            }
+            catch (WebException _VideoInfoAPIAccessError)
+            {
+                throw new WebException("動画情報取得APIにアクセス出来ませんでした", _VideoInfoAPIAccessError);
+            }
+        }
+
 
         private bool AccessVideo(VideoInfo VideoInfo)
         {
@@ -174,7 +204,7 @@ namespace NicoServiceAPI.NicoVideo
             {
                 client.Download(ApiUrls.Host + "watch/" + VideoInfo.ID);//動画ページにアクセス
 
-                var cacheString = Encoding.UTF8.GetString(client.Download(String.Format(ApiUrls.GetVideo, VideoInfo.ID) + "?as3=1"));
+                var cacheString = Encoding.UTF8.GetString(client.Download(String.Format(ApiUrls.GetVideo, VideoInfo.ID)));
 
                 VideoInfo.cache = HttpUtility.ParseQueryString(Uri.UnescapeDataString(cacheString));
             }

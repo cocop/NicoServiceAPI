@@ -9,9 +9,9 @@
         public string Name { set; get; }
 
         /// <summary>カテゴリ</summary>
-        public int Category { set; get; }
+        public bool Category { set; get; }
 
         /// <summary>タグロック</summary>
-        public int Lock { set; get; }
+        public bool Lock { set; get; }
     }
 }

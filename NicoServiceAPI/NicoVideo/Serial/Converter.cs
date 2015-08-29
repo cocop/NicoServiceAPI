@@ -26,21 +26,46 @@ namespace NicoServiceAPI.NicoVideo.Serial
             return result;
         }
 
+        public static NicoVideo.Tag[] ConvertTags(Serial.Tags Serial)
+        {
+            var result = new NicoVideo.Tag[Serial.List.Length];
+
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = new NicoVideo.Tag()
+                {
+                    Category = Serial.List[i].Category != 0,
+                    Lock = Serial.List[i].Lock != 0,
+                    Name = Serial.List[i].Name,
+                };
+            }
+
+            return result;
+        }
+
+        public static TimeSpan ConvertTimeSpan(string Serial)
+        {
+            string[] buf = Serial.Split(':');
+            var minute = int.Parse(buf[0]);
+
+            return new TimeSpan((int)(minute / 60), minute % 60, int.Parse(buf[1]));
+        }
+
         public static NicoVideo.VideoInfo ConvertVideoInfo(VideoInfo Serial, Connection.Client Client)
         {
             var result = new NicoVideo.VideoInfo()
             {
                 ComentNumber = Serial.ComentNumber,
-                Description = Serial.Description,
+                //Description = Serial.Description,HTMLタグが削除されるためここで取得はしない
                 EconomyVideoSize = Serial.EconomyVideoSize,
-                //ExternalPlay = Serial.ExternalPlay,/*!*/
+                ExternalPlay = int.Parse(Serial.ExternalPlay) != 0,
                 ID = Serial.ID,
-                Length = TimeSpan.Parse("00:" + Serial.Length),
+                Length = ConvertTimeSpan(Serial.Length),
                 MylistCounter = Serial.MylistCounter,
                 NoLivePlay = Serial.NoLivePlay,
                 PostTime = DateTime.Parse(Serial.PostTime),
                 ShortDescription = Serial.ShortDescription,
-                //Tags = Serial.Tags.List,/*!*/
+                Tags = ConvertTags(Serial.Tags),
                 Thumbnail = new Thumbnail(Serial.ThumbnailUrl, Client),
                 Title = Serial.Title,
                 VideoSize = Serial.VideoSize,
