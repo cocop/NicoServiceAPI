@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace NicoServiceAPI.NicoVideo.Serial
+namespace NicoServiceAPI.NicoVideo.Serial.GetComment
 {
 
     /******************************************/
@@ -9,15 +9,15 @@ namespace NicoServiceAPI.NicoVideo.Serial
     public class ViewCounter
     {
         /// <summary>再生数</summary>
-        [XmlAttribute("video")]
-        public int View;
+        [XmlAttribute]
+        public int video;
 
         /// <summary>動画ID</summary>
-        [XmlAttribute("id")]
-        public string ID;
+        [XmlAttribute]
+        public string id;
 
         /// <summary>マイリスト登録数</summary>
-        [XmlAttribute("mylist")]
-        public int MyList;
+        [XmlAttribute]
+        public int mylist;
     }
 }

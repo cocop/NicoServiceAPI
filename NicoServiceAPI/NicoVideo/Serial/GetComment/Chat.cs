@@ -1,59 +1,59 @@
 ﻿using System.Xml.Serialization;
 
-namespace NicoServiceAPI.NicoVideo.Serial
+namespace NicoServiceAPI.NicoVideo.Serial.GetComment
 {
     /******************************************/
     /// <summary>コメント</summary>
     /******************************************/
-    public class Comment
+    public class Chat
     {
         /// <summary>スレッドID</summary>
-        [XmlAttribute("thread")]
-        public int Thread;
+        [XmlAttribute]
+        public int thread;
 
         /// <summary>コメント番号</summary>
-        [XmlAttribute("no")]
-        public int No;
+        [XmlAttribute]
+        public int no;
 
         /// <summary>再生位置</summary>
-        [XmlAttribute("vpos")]
-        public string PlayTime;
+        [XmlAttribute]
+        public string vpos;
 
         /// <summary>投稿時間</summary>
-        [XmlAttribute("date")]
-        public string WriteTime;
+        [XmlAttribute]
+        public string date;
 
         /// <summary>コマンド</summary>
-        [XmlAttribute("mail")]
-        public string Command;
+        [XmlAttribute]
+        public string mail;
 
         /// <summary>ユーザーID</summary>
-        [XmlAttribute("user_id")]
-        public string UserID;
+        [XmlAttribute]
+        public string user_id;
 
         /// <summary>暗号ユーザーIDフラグ</summary>
-        [XmlAttribute("anonymity")]
-        public string Anonymity;
+        [XmlAttribute]
+        public string anonymity;
 
         /// <summary>プレミアムフラグ</summary>
-        [XmlAttribute("premium")]
-        public bool Premium;
+        [XmlAttribute]
+        public bool premium;
 
         /// <summary>再生時間（分）</summary>
-        [XmlAttribute("leaf")]
-        public int Leaf;
+        [XmlAttribute]
+        public int leaf;
 
         /// <summary>NG共有スコア</summary>
-        [XmlAttribute("scores")]
-        public string Scores;
+        [XmlAttribute]
+        public string scores;
 
         /// <summary>自分のコメントフラグ</summary>
-        [XmlAttribute("yourpost")]
-        public bool YourPost;
-        
+        [XmlAttribute]
+        public bool yourpost;
+
         /// <summary>コメント本文</summary>
         [XmlText]
-        public string Body;
+        public string body;
 
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace NicoServiceAPI.NicoVideo.Serial
+namespace NicoServiceAPI.NicoVideo.Serial.GetComment
 {
     /******************************************/
     /// <summary>コメントリーフ情報</summary>
@@ -8,15 +8,15 @@ namespace NicoServiceAPI.NicoVideo.Serial
     public class Leaf
     {
         /// <summary>コメントリーフID</summary>
-        [XmlAttribute("leaf")]
-        public int ID;
+        [XmlAttribute]
+        public int leaf;
 
         /// <summary>スレッドID</summary>
-        [XmlAttribute("thread")]
-        public int Thread;
+        [XmlAttribute]
+        public int thread;
 
         /// <summary>リーフ内の総コメント数</summary>
-        [XmlAttribute("count")]
-        public int Count;
+        [XmlAttribute]
+        public int count;
     }
 }

@@ -28,6 +28,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\NicoServiceAPI.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -49,33 +50,45 @@
     <Compile Include="NicoService.cs" />
     <Compile Include="NicoVideo\Comment.cs" />
     <Compile Include="NicoVideo\CommentResponse.cs" />
+    <Compile Include="NicoVideo\Mylist.cs" />
+    <Compile Include="NicoVideo\MylistItem.cs" />
     <Compile Include="NicoVideo\PostTime.cs" />
+    <Compile Include="NicoVideo\Response.cs" />
     <Compile Include="NicoVideo\SearchOption.cs" />
     <Compile Include="NicoVideo\SearchType.cs" />
-    <Compile Include="NicoVideo\Serial\Comment.cs" />
-    <Compile Include="NicoVideo\Serial\CommentResponse.cs" />
     <Compile Include="NicoVideo\Serial\Converter.cs" />
-    <Compile Include="NicoVideo\Serial\Error.cs" />
-    <Compile Include="NicoVideo\Serial\Leaf.cs" />
-    <Compile Include="NicoVideo\Serial\Tag.cs" />
-    <Compile Include="NicoVideo\Serial\Tags.cs" />
-    <Compile Include="NicoVideo\Serial\Thread.cs" />
-    <Compile Include="NicoVideo\Serial\VideoInfo.cs" />
-    <Compile Include="NicoVideo\Serial\VideoInfoResponse.cs" />
-    <Compile Include="NicoVideo\Serial\ViewCounter.cs" />
+    <Compile Include="NicoVideo\Serial\GetComment\Chat.cs" />
+    <Compile Include="NicoVideo\Serial\GetComment\ViewCounter.cs" />
+    <Compile Include="NicoVideo\Serial\GetComment\Packet.cs" />
+    <Compile Include="NicoVideo\Serial\GetComment\Thread.cs" />
+    <Compile Include="NicoVideo\Serial\GetInfo\Error.cs" />
+    <Compile Include="NicoVideo\Serial\GetInfo\NicovideoThumbResponse.cs" />
+    <Compile Include="NicoVideo\Serial\GetInfo\Tag.cs" />
+    <Compile Include="NicoVideo\Serial\GetInfo\Tags.cs" />
+    <Compile Include="NicoVideo\Serial\GetInfo\Thumb.cs" />
+    <Compile Include="NicoVideo\Serial\GetMylist\Contract.cs" />
+    <Compile Include="NicoVideo\Serial\GetMylist\ItemData.cs" />
+    <Compile Include="NicoVideo\Serial\GetMylist\Mylistitem.cs" />
+    <Compile Include="NicoVideo\Serial\GetComment\Leaf.cs" />
+    <Compile Include="NicoVideo\MylistResponse.cs" />
+    <Compile Include="NicoVideo\Serial\Search\Contract.cs" />
+    <Compile Include="NicoVideo\Serial\Search\List.cs" />
+    <Compile Include="NicoVideo\Serial\Search\Nicopedia.cs" />
     <Compile Include="NicoVideo\SortOrder.cs" />
     <Compile Include="NicoVideo\SortTarget.cs" />
     <Compile Include="NicoVideo\Status.cs" />
     <Compile Include="NicoVideo\Tag.cs" />
     <Compile Include="NicoVideo\Thumbnail.cs" />
+    <Compile Include="NicoVideo\User.cs" />
     <Compile Include="NicoVideo\VideoInfo.cs" />
     <Compile Include="NicoVideo\VideoInfoResponse.cs" />
     <Compile Include="NicoVideo\VideoService.cs" />
     <Compile Include="NicoVideo\VideoTime.cs" />
     <Compile Include="PostTexts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SplitHtmlText.cs" />
+    <Compile Include="HtmlTextRegex.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

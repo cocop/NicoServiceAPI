@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace NicoServiceAPI.NicoVideo.Serial
+namespace NicoServiceAPI.NicoVideo.Serial.GetInfo
 {
     /******************************************/
     /// <summary>タグ</summary>
@@ -9,14 +9,14 @@ namespace NicoServiceAPI.NicoVideo.Serial
     {
         /// <summary>タグ名</summary>
         [XmlText]
-        public string Name { set; get; }
+        public string tag;
 
         /// <summary>カテゴリ</summary>
-        [XmlAttribute("category")]
-        public int Category { set; get; }
+        [XmlElement]
+        public int category;
 
         /// <summary>タグロック</summary>
-        [XmlAttribute("lock")]
-        public int Lock { set; get; }
+        [XmlElement]
+        public int _lock; //予約語なので先頭にハイフン
     }
 }

@@ -84,5 +84,38 @@ namespace NicoServiceAPI.Connection
 
             return default(DataType);
         }
+
+        /// <summary>ストリームを処理する</summary>
+        /// <param name="RunCount">処理するストリームの数</param>
+        public DataType Run(int RunCount)
+        {
+            if (RunCount <= 0 && RunCount > UntreatedStreamsCount)
+                return default(DataType);
+
+            for (int i = 0; i < RunCount; i++)
+            {
+                switch (NowStreamType)
+                {
+                    case NicoServiceAPI.Connection.StreamType.Read:
+                        {
+                            var buf = new MemoryStream();
+                            GetStream().CopyTo(buf);
+                            SetReadData(buf.ToArray());
+                        } break;
+
+                    case NicoServiceAPI.Connection.StreamType.Write:
+                        {
+                            var data = GetWriteData();
+                            var stream = new MemoryStream(data);
+                            stream.CopyTo(GetStream(data.Length));
+                        } break;
+
+                    default: throw new Exception("StreamTypeが不正です");
+                }
+                Next();
+            }
+
+            return GetData();
+        }
     }
 }

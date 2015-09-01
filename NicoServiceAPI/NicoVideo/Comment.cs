@@ -23,10 +23,10 @@ namespace NicoServiceAPI.NicoVideo
         public string UserID;
 
         /// <summary>暗号ユーザーIDフラグ</summary>
-        public string Anonymity;
+        public string IsAnonymity;
 
         /// <summary>プレミアムフラグ</summary>
-        public bool Premium;
+        public bool IsPremium;
 
         /// <summary>再生時間（分）</summary>
         public int Leaf;
@@ -35,7 +35,7 @@ namespace NicoServiceAPI.NicoVideo
         //public string Scores;/*!*/詳細調べ中
 
         /// <summary>自分のコメントフラグ</summary>
-        public bool YourPost;
+        public bool IsYourPost;
 
         /// <summary>コメント本文</summary>
         public string Body;

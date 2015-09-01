@@ -44,7 +44,7 @@ namespace NicoServiceAPI.NicoVideo
         public int ViewCounter { set; get; }
 
         /// <summary>コメント数</summary>
-        public int ComentNumber { set; get; }
+        public int ComentCounter { set; get; }
 
         /// <summary>マイリスト数</summary>
         public int MylistCounter { set; get; }
@@ -77,10 +77,10 @@ namespace NicoServiceAPI.NicoVideo
         }
 
         /// <summary>ニコ生で再生できるかどうか</summary>
-        public bool NoLivePlay { set; get; }
+        public bool IsLivePlay { set; get; }
 
         /// <summary>外部再生の可否</summary>
-        public bool ExternalPlay { set; get; }
+        public bool IsExternalPlay { set; get; }
 
         /// <summary>内部キャッシュ</summary>
         internal NameValueCollection cache { set; get; }

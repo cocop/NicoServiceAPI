@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace NicoServiceAPI.NicoVideo.Serial
+namespace NicoServiceAPI.NicoVideo.Serial.GetComment
 {
     /******************************************/
     /// <summary>スレッド情報</summary>
@@ -8,8 +8,8 @@ namespace NicoServiceAPI.NicoVideo.Serial
     public class Thread
     {
         /// <summary>スレッドのレスポンス</summary>
-        [XmlAttribute("resultcode")]
-        public int ResultCode;
+        [XmlAttribute]
+        public int resultcode;
 
         //0 = FOUND(スレッドを見つけた)
         //1 = NOT_FOUND(スレッドが見つからない)
@@ -28,23 +28,23 @@ namespace NicoServiceAPI.NicoVideo.Serial
 
 
         /// <summary>スレッドID</summary>
-        [XmlAttribute("thread")]
-        public int Value;
+        [XmlAttribute]
+        public int thread;
 
         /// <summary>最後に投稿されたコメントのコメントNo、通常コメント数と同値</summary>
-        [XmlAttribute("last_res")]
-        public int LastRes;
+        [XmlAttribute]
+        public int last_res;
 
         /// <summary>投稿チケット</summary>
-        [XmlAttribute("ticket")]
-        public string Ticket;
+        [XmlAttribute]
+        public string ticket;
 
-        /// <summary>恐らくキャッシュの改訂版号</summary>
-        [XmlAttribute("revision")]
-        public int Revision;
+        /// <summary>キャッシュの改訂版号</summary>
+        [XmlAttribute]
+        public int revision;
 
         /// <summary>サーバー時間</summary>
-        [XmlAttribute("server_time")]
-        public int ServerTime;
+        [XmlAttribute]
+        public int server_time;
     }
 }

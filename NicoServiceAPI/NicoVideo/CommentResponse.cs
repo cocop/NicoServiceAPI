@@ -3,9 +3,9 @@
     /******************************************/
     /// <summary>コメントレスポンス</summary>
     /******************************************/
-    public class CommentResponse
+    public class CommentResponse : Response
     {
         /// <summary>コメント</summary>
-        public Comment[] Comment;
+        public Comment[] Comment { get; set; }
     }
 }

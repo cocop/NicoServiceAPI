@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml.Serialization;
 
@@ -37,8 +38,8 @@ namespace NicoServiceAPI.NicoVideo
             SearchType      SearchType,
             SearchOption    SearchOption)
         {
-            var serialize = new DataContractJsonSerializer(typeof(Serial.VideoInfoResponse));
-            var serial = (Serial.VideoInfoResponse)serialize.ReadObject(
+            var serialize = new DataContractJsonSerializer(typeof(Serial.Search.Contract));
+            var serial = (Serial.Search.Contract)serialize.ReadObject(
                 client.OpenDownloadStream(
                     String.Format(
                         ApiUrls.VideoSearch,
@@ -54,67 +55,47 @@ namespace NicoServiceAPI.NicoVideo
         /// <param name="VideoInfo">ダウンロードする動画の指定</param>
         public byte[] DownloadVideo(VideoInfo VideoInfo)
         {
-            if (!AccessVideo(VideoInfo)) return null;
-
-            string videoUrl = VideoInfo.cache[3];
-
-            try
-            {
-                return client.Download(videoUrl);
-            }
-            catch (WebException e)
-            {
-                throw new WebException("動画が保存されているサーバーにアクセス出来ませんでした", e);
-            }
+            var streams = GetVideoDownloadStream(VideoInfo);
+            return streams.Run(streams.UntreatedStreamsCount);
         }
 
         /// <summary>動画をダウンロードするストリームを取得する</summary>
         /// <param name="VideoInfo">ダウンロードする動画の指定</param>
-        public Stream GetVideoDownloadStream(VideoInfo VideoInfo)
+        public Connection.Streams<byte[]> GetVideoDownloadStream(VideoInfo VideoInfo)
         {
-            if (!AccessVideo(VideoInfo)) return null;
+            var streamDataList = new List<Connection.StreamData>();
+            byte[] result = null;
 
-            string videoUrl = VideoInfo.cache["url"];
+            streamDataList.AddRange(GetVideoAccessStream(VideoInfo));
+            streamDataList.Add(
+                new Connection.StreamData()
+                {
+                    StreamType = Connection.StreamType.Read,
+                    GetStream = (size) =>
+                    {
+                        try
+                        {
+                            return client.OpenDownloadStream(VideoInfo.cache["url"]);
+                        }
+                        catch (WebException e)
+                        {
+                            throw new WebException("動画にアクセス出来ませんでした", e);
+                        }
+                    },
+                    SetReadData = (data) => result = data,
+                });
 
-            try
-            {
-                return client.OpenDownloadStream(videoUrl);
-            }
-            catch (WebException e)
-            {
-                throw new WebException("動画が保存されているサーバーにアクセス出来ませんでした", e);
-            }
+            return new Connection.Streams<byte[]>(
+                streamDataList.ToArray(),
+                () => result);
         }
 
         /// <summary>コメントをダウンロードする</summary>
         /// <param name="VideoInfo">ダウンロードするコメントの動画IDを指定</param>
         public CommentResponse DownloadComment(VideoInfo VideoInfo)
         {
-            if (!AccessVideo(VideoInfo)) return null;
-
-            try
-            {
-                var post =  Encoding.UTF8.GetBytes(
-                    String.Format(
-                        PostTexts.GetVideoComment,
-                        VideoInfo.cache["thread_id"],
-                        "100"));
-
-                var streams = client.OpenUploadStream(
-                    VideoInfo.cache["ms"]);
-
-                var postStream = streams.GetStream(post.Length);
-                postStream.Write(post, 0, post.Length);
-                postStream.Close();
-                streams.Next();
-
-                var serialize = new XmlSerializer(typeof(Serial.CommentResponse));
-                return Serial.Converter.ConvertCommentResponse((Serial.CommentResponse)serialize.Deserialize(streams.GetStream()));
-            }
-            catch (WebException e)
-            {
-                throw new WebException("コメントサーバーにアクセス出来ませんでした", e);
-            }
+            var streams = GetCommentDownloadStream(VideoInfo);
+            return streams.Run(streams.UntreatedStreamsCount);
         }
 
         /// <summary>コメントをダウンロードするストリームを取得する</summary>
@@ -122,34 +103,49 @@ namespace NicoServiceAPI.NicoVideo
         public Connection.Streams<CommentResponse> GetCommentDownloadStream(VideoInfo VideoInfo)
         {
             var streamDataList = new List<Connection.StreamData>();
-            Connection.Streams streams = null;
+            Connection.Streams uploadStreams = null;
             MemoryStream stream = null;
 
             streamDataList.AddRange(GetVideoAccessStream(VideoInfo));
             streamDataList.Add(new Connection.StreamData()
-            {
+            {   //リクエスト
                 StreamType = Connection.StreamType.Write,
-                GetStream = (size) => 
+                GetStream = (size) =>
                 {
-                    streams = client.OpenUploadStream(VideoInfo.cache["ms"]);
-                    return streams.GetStream(size);
+                    Stream result = null;
+                    try
+                    {
+                        uploadStreams = client.OpenUploadStream(VideoInfo.cache["ms"]);
+                        result = uploadStreams.GetStream(size);
+                        uploadStreams.Next();
+                    }
+                    catch(WebException e)
+                    {
+                        throw new WebException("コメントサーバーにアクセスできません", e);
+                    }
+                    return result;
                 },
                 GetWriteData = () =>
                 {
                     return Encoding.UTF8.GetBytes(
                         String.Format(
                             PostTexts.GetVideoComment,
-                            VideoInfo.cache["thread_id"],
-                            "100"));
+                            VideoInfo.cache["thread_id"]));
                 }
             });
             streamDataList.Add(new Connection.StreamData()
-            {
+            {   //レスポンス
                 StreamType = Connection.StreamType.Read,
                 GetStream = (size) =>
                 {
-                    streams.Next();
-                    return streams.GetStream();
+                    try
+                    {
+                        return uploadStreams.GetStream();
+                    }
+                    catch(WebException e)
+                    {
+                        throw new WebException("コメントサーバーにアクセスできません", e);
+                    }
                 },
                 SetReadData = (data) => stream = new MemoryStream(data),
             });
@@ -158,14 +154,61 @@ namespace NicoServiceAPI.NicoVideo
                 streamDataList.ToArray(),
                 () =>
                 {
-                    var serialize = new XmlSerializer(typeof(Serial.CommentResponse));
-                    return Serial.Converter.ConvertCommentResponse((Serial.CommentResponse)serialize.Deserialize(stream));
+                    var serialize = new XmlSerializer(typeof(Serial.GetComment.Packet));
+                    return Serial.Converter.ConvertCommentResponse((Serial.GetComment.Packet)serialize.Deserialize(stream));
                 });
         }
 
-        public void DownloadMylist()
+        /// <summary>マイリストを取得する</summary>
+        /// <param name="Mylist">IDがnullである場合、とりあえずマイリストを取得する、nullでない場合、指定したマイリストをHTML解析して取得する</param>
+        /// <param name="IsHtml">現在は無視される</param>
+        public MylistResponse DownloadMylist(Mylist Mylist, bool IsHtml = true)
         {
+            var serialize = new DataContractJsonSerializer(typeof(Serial.GetMylist.Contract));
+            string mylistSerial;
+            GroupCollection mylistInfo = null;
+            GroupCollection mylistUserInfo = null;
 
+            if (Mylist.ID == null)
+            {
+                mylistSerial = Encoding.UTF8.GetString(client.Download(
+                    ApiUrls.GetDefaultVideoMylist));
+            }
+            else
+            {//HTML内にJSON文があるので抜き出してシリアライズ、JavaScriptオブジェクトもあるので一緒に抜き出す
+                var html = Encoding.UTF8.GetString(client.Download(string.Format(ApiUrls.GetVideoMylist, Mylist.ID)));
+                var mylist = HtmlTextRegex.VideoMylist.Match(html).Groups["value"].Value;
+
+                mylistInfo = HtmlTextRegex.VideoMylistInfoCutout.Match(
+                    HtmlTextRegex.VideoMylistInfo.Match(html).Groups["value"].Value).Groups;
+
+                mylistUserInfo = HtmlTextRegex.VideoMylistUserInfoCutout.Match(
+                    HtmlTextRegex.VideoMylistUserInfo.Match(html).Groups["value"].Value).Groups;
+
+                if (mylist != "")
+                {
+                    mylist = Regex.Replace(mylist, "\\\\u(?<value>[0-9a-fA-F]{4})", (match) =>//Unicodeエスケープシーケンスをデコード
+                        ((char)Convert.ToInt32(match.Groups["value"].Value, 16)).ToString());
+
+                    mylistSerial = "{" + "\"mylistitem\":" + mylist + ", \"status\" : \"ok\"}";
+                }
+                else
+                {
+                    mylistSerial = "{" + "\"mylistitem\":[], \"status\" : \"fail\"}";
+                }
+            }
+
+            return Serial.Converter.ConvertMylistResponse(
+                (Serial.GetMylist.Contract)serialize.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(mylistSerial))),
+                mylistInfo,
+                mylistUserInfo,
+                client);
+
+            ////マイリストグループ
+            //var mylistGroup = Encoding.UTF8.GetString(client.Download(
+            //    ApiUrls.GetMylistGroup));
+
+            //mylistGroup = HttpUtility.HtmlDecode(mylistGroup);
         }
 
         /// <summary>>動画の詳細情報を取得する、情報は0番目の配列に格納される</summary>
@@ -173,31 +216,8 @@ namespace NicoServiceAPI.NicoVideo
         /// <param name="IsHtml">合わせてHtmlから情報を取得するか、現在動画説明文のみ</param>
         public VideoInfoResponse DownloadVideoInfo(VideoInfo VideoInfo, bool IsHtml = true)
         {
-            try
-            {
-                var serialize = new XmlSerializer(typeof(Serial.VideoInfoResponse));
-                var serial = (Serial.VideoInfoResponse)serialize.Deserialize(
-                    client.OpenDownloadStream(
-                        String.Format(ApiUrls.GetVideoInfo, VideoInfo.ID)));
-                var result = Serial.Converter.ConvertVideoInfoResponse(serial, client);
-
-                if (IsHtml)
-                {
-                    var html = Encoding.UTF8.GetString(client.Download(ApiUrls.Host + "watch/" + VideoInfo.ID));
-                    var htmls = html.Split(
-                        SplitHtmlText.VideoDescription,
-                        StringSplitOptions.RemoveEmptyEntries);
-
-                    if (htmls.Length == 3)//HTMLから取得する
-                        result.VideoInfos[0].Description = htmls[1];
-                }
-
-                return result;
-            }
-            catch (WebException _VideoInfoAPIAccessError)
-            {
-                throw new WebException("動画情報取得APIにアクセス出来ませんでした", _VideoInfoAPIAccessError);
-            }
+            var streams = GetVideoInfoDownloadStream(VideoInfo, IsHtml);
+            return streams.Run(streams.UntreatedStreamsCount);
         }
 
         /// <summary>>動画の詳細情報を取得するストリームを取得する、情報は0番目の配列に格納される</summary>
@@ -208,22 +228,35 @@ namespace NicoServiceAPI.NicoVideo
             var streamDataList = new List<Connection.StreamData>();
             VideoInfoResponse lastData = null;
 
+            #region APIアクセス
             streamDataList.Add(
                 new Connection.StreamData()
                 {
                     StreamType = Connection.StreamType.Read,
-                    GetStream = (size) => client.OpenDownloadStream(String.Format(ApiUrls.GetVideoInfo, VideoInfo.ID)),
+                    GetStream = (size) =>
+                    {
+                        try
+                        {
+                            return client.OpenDownloadStream(String.Format(ApiUrls.GetVideoInfo, VideoInfo.ID));
+                        }
+                        catch (WebException e)
+                        {
+                            throw new WebException("動画情報取得APIにアクセス出来ませんでした", e);
+                        }
+                    },
                     SetReadData = (data) =>
                     {
-                        var serialize = new XmlSerializer(typeof(Serial.VideoInfoResponse));
-                        var serial = (Serial.VideoInfoResponse)serialize.Deserialize(
-                            client.OpenDownloadStream(
-                                String.Format(ApiUrls.GetVideoInfo, VideoInfo.ID)));
+
+                        var serialize = new XmlSerializer(typeof(Serial.GetInfo.NicovideoThumbResponse));
+                        var serial = (Serial.GetInfo.NicovideoThumbResponse)serialize.Deserialize(
+                            new MemoryStream(data));
 
                         lastData = Serial.Converter.ConvertVideoInfoResponse(serial, client);
                     }
                 });
+            #endregion
 
+            #region HTMLアクセス
             if (IsHtml)//HTMLから取得する
             {
                 streamDataList.Add(
@@ -234,41 +267,17 @@ namespace NicoServiceAPI.NicoVideo
                         SetReadData = (data) =>
                         {
                             var html = Encoding.UTF8.GetString(data);
-                            var htmls = html.Split(
-                                SplitHtmlText.VideoDescription,
-                                StringSplitOptions.RemoveEmptyEntries);
-
-                            if (htmls.Length == 3)
-                                lastData.VideoInfos[0].Description = htmls[1];
+                            lastData.VideoInfos[0].Description = HtmlTextRegex.VideoDescription.Match(html).Groups["value"].Value;
                         },
                     });
             }
+            #endregion
 
             return new Connection.Streams<VideoInfoResponse>(
                 streamDataList.ToArray(),
                 () => lastData);
         }
 
-
-        private bool AccessVideo(VideoInfo VideoInfo)
-        {
-            if (VideoInfo.cache != null) return true;
-
-            try
-            {
-                client.Download(ApiUrls.Host + "watch/" + VideoInfo.ID);//動画ページにアクセス
-
-                var cacheString = Encoding.UTF8.GetString(client.Download(String.Format(ApiUrls.GetVideo, VideoInfo.ID)));
-
-                VideoInfo.cache = HttpUtility.ParseQueryString(Uri.UnescapeDataString(cacheString));
-            }
-            catch (WebException e)
-            {
-                throw new WebException("動画サイトにアクセス出来ませんでした", e);
-            }
-
-            return VideoInfo.cache != null;
-        }
 
         private Connection.StreamData[] GetVideoAccessStream(VideoInfo VideoInfo)
         {
@@ -279,12 +288,32 @@ namespace NicoServiceAPI.NicoVideo
                 new Connection.StreamData()
                 {
                     StreamType = Connection.StreamType.Read,
-                    GetStream = (size) => client.OpenDownloadStream(ApiUrls.Host + "watch/" + VideoInfo.ID),
+                    GetStream = (size) =>
+                    {
+                        try
+                        {
+                            return client.OpenDownloadStream(ApiUrls.Host + "watch/" + VideoInfo.ID);
+                        }
+                        catch (WebException e)
+                        {
+                            throw new WebException("動画サイトにアクセス出来ませんでした", e);
+                        }
+                    }
                 },
                 new Connection.StreamData()
                 {
                     StreamType = Connection.StreamType.Read,
-                    GetStream = (size) => client.OpenDownloadStream(String.Format(ApiUrls.GetVideo, VideoInfo.ID)),
+                    GetStream = (size) =>
+                    {
+                        try
+                        {
+                            return client.OpenDownloadStream(String.Format(ApiUrls.GetVideo, VideoInfo.ID));
+                        }
+                        catch(WebException e)
+                        {
+                            throw new WebException("動画にアクセス出来ませんでした", e);
+                        }
+                    },
                     SetReadData = (data) =>
                     {
                         VideoInfo.cache = HttpUtility.ParseQueryString(
@@ -294,6 +323,5 @@ namespace NicoServiceAPI.NicoVideo
                 },
             };
         }
-
     }
 }
