@@ -1,4 +1,4 @@
-﻿namespace NicoServiceAPI.NicoVideo
+﻿namespace NicoServiceAPI.NicoVideo.Video
 {
     /******************************************/
     /// <summary>タグ</summary>

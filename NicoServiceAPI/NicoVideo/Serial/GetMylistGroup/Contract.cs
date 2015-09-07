@@ -1,16 +1,16 @@
 ﻿using System.Runtime.Serialization;
 
-namespace NicoServiceAPI.NicoVideo.Serial.GetMylist
+namespace NicoServiceAPI.NicoVideo.Serial.GetMylistGroup
 {
     /******************************************/
-    /// <summary>マイリストレスポンス</summary>
+    /// <summary>マイリストグループレスポンス</summary>
     /******************************************/
     [DataContract]
     public class Contract
     {
-        /// <summary>マイリストの動画情報</summary>
+        /// <summary>マイリストグループ</summary>
         [DataMember]
-        public Mylistitem[] mylistitem;
+        public MylistGroup[] mylistgroup;
 
         /// <summary>成功か失敗か</summary>
         [DataMember]

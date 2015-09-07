@@ -3,83 +3,132 @@ using System.Text.RegularExpressions;
 
 namespace NicoServiceAPI.NicoVideo.Serial
 {
-    internal static class Converter
+    internal class Converter
     {
         static DateTime unixTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
+
+        Context context;
+
+        /// <summary>インスタンスコンテナ、普通に使う分には名前が長過ぎるので省略</summary>
+        InstanceContainer ic { get { return context.InstanceContainer; } }
+        Connection.Client client { get { return context.Client; } }
+
+        public Converter(Context Context)
+        {
+            context = Context;
+        }
+
+
+
         /********************************************/
 
-        public static CommentResponse ConvertCommentResponse(GetComment.Packet Serial)
+        public Video.CommentResponse ConvertCommentResponse(GetComment.Packet Serial)
         {
-            return new CommentResponse()
+            return new Video.CommentResponse()
             {
                 Comment = ConvertComment(Serial.chat),
+                Status = ConvertStatus("ok", null),
             };
         }
 
-        public static VideoInfoResponse ConvertVideoInfoResponse(GetInfo.NicovideoThumbResponse Serial, Connection.Client Client)
+        public Video.VideoInfoResponse ConvertVideoInfoResponse(GetInfo.NicovideoThumbResponse Serial)
         {
-            var result = new VideoInfoResponse();
+            var result = new Video.VideoInfoResponse();
 
-            result.Status = ConvertStatus(Serial.status, (Serial.error == null) ? null : Serial.error.code);
-            result.ErrorMessage = Serial.message;
+            result.ErrorMessage = (Serial.error == null) ? null : Serial.error.description;
+            result.Status = ConvertStatus(Serial.status, Serial.error);
 
             if (Serial.thumb != null)
             {
-                result.VideoInfos = new NicoVideo.VideoInfo[]
-                {
-                    new VideoInfo()
-                    {
-                        ComentCounter = Serial.thumb.comment_num,
-                        Description = Serial.thumb.description,
-                        EconomyVideoSize = Serial.thumb.size_low,
-                        IsExternalPlay = Serial.thumb.embeddable,
-                        ID = Serial.thumb.video_id,
-                        Length = ConvertTimeSpan(Serial.thumb.length),
-                        MylistCounter = Serial.thumb.mylist_counter,
-                        IsLivePlay = !Serial.thumb.no_live_play,
-                        PostTime = DateTime.Parse(Serial.thumb.first_retrieve),
-                        Tags = ConvertTags(Serial.thumb.tags),
-                        Thumbnail = new Thumbnail(Serial.thumb.thumbnail_url, Client),
-                        Title = Serial.thumb.title,
-                        VideoSize = Serial.thumb.size_high,
-                        VideoType = Serial.thumb.movie_type,
-                        ViewCounter = Serial.thumb.view_counter,
-                    }
-                };
+                var info = (ic == null)
+                    ? new Video.VideoInfo(Serial.thumb.video_id)
+                    : ic.GetVideoInfo(Serial.thumb.video_id);
+
+                info.ComentCounter = Serial.thumb.comment_num;
+                info.Description = Serial.thumb.description;
+                info.EconomyVideoSize = Serial.thumb.size_low;
+                info.IsExternalPlay = Serial.thumb.embeddable;
+                info.Length = ConvertTimeSpan(Serial.thumb.length);
+                info.MylistCounter = Serial.thumb.mylist_counter;
+                info.IsLivePlay = !Serial.thumb.no_live_play;
+                info.PostTime = DateTime.Parse(Serial.thumb.first_retrieve);
+                info.Tags = ConvertTags(Serial.thumb.tags);
+                info.Title = Serial.thumb.title;
+                info.VideoSize = Serial.thumb.size_high;
+                info.VideoType = Serial.thumb.movie_type;
+                info.ViewCounter = Serial.thumb.view_counter;
+
+                //サムネイルは持っていない場合のみnew
+                info.Thumbnail = (info.Thumbnail == null)
+                    ? new Picture(Serial.thumb.thumbnail_url, client)
+                    : info.Thumbnail;
+
+
+                result.VideoInfos = new Video.VideoInfo[] { info };
             }
 
             return result;
         }
 
-        public static VideoInfoResponse ConvertVideoInfoResponse(Search.Contract Serial, Connection.Client client)
+        public Video.VideoInfoResponse ConvertVideoInfoResponse(Search.Contract Serial)
         {
-            return new VideoInfoResponse()
+            return new Video.VideoInfoResponse()
             {
-                ErrorMessage = Serial.message,
-                Status = ConvertStatus(Serial.status, null),
-                VideoInfos = ConvertVideoInfo(Serial.list, client),
+                ErrorMessage = (Serial.error == null) ? null : Serial.error.description,
+                Status = ConvertStatus(Serial.status, Serial.error),
+                VideoInfos = ConvertVideoInfo(Serial.list),
             };
         }
 
-        public static MylistResponse ConvertMylistResponse(GetMylist.Contract Serial, GroupCollection MylistInfoData, GroupCollection MylistUserInfoData, Connection.Client Client)
+        public User.MylistResponse ConvertMylistResponse(GetMylist.Contract Serial, GroupCollection MylistInfoData, GroupCollection MylistUserInfoData)
         {
-            return new MylistResponse()
+            return new User.MylistResponse()
             {
-                Mylist = ConvertMylist(Serial.mylistitem, MylistInfoData, MylistUserInfoData, Client),
-                Status = ConvertStatus(Serial.status, ""),
+                ErrorMessage = (Serial.error == null) ? null : Serial.error.description,
+                Mylist = ConvertMylist(Serial.mylistitem, MylistInfoData, MylistUserInfoData),
+                Status = ConvertStatus(Serial.status, Serial.error),
+            };
+        }
+
+        public User.MylistGroupResponse ConvertMylistGroupResponse(GetMylistGroup.Contract Serial)
+        {
+            return new User.MylistGroupResponse()
+            {
+                ErrorMessage = (Serial.error == null) ? null : Serial.error.description,
+                MylistGroup = ConvertMylistGroup(Serial.mylistgroup),
+                Status = ConvertStatus(Serial.status, Serial.error),
+            };
+        }
+
+        public Response ConvertMylistAddVideoResponse(MylistAddVideo.Contract Serial)
+        {
+            return new Response()
+            {
+                ErrorMessage = (Serial.error == null) ? null : Serial.error.description,
+                Status = ConvertStatus(Serial.status, Serial.error),
+            };
+        }
+
+        public User.MylistRemoveVideoResponse ConvertMylistRemoveVideoResponse(MylistRemoveVideo.Contract Serial)
+        {
+            return new User.MylistRemoveVideoResponse()
+            {
+                ErrorMessage = (Serial.error == null) ? null : Serial.error.description,
+                RemoveCount = int.Parse((Serial.delete_count == null) ? "0" : Serial.delete_count),
+                Status = ConvertStatus(Serial.status, Serial.error),
             };
         }
 
         /********************************************/
 
-        private static Comment[] ConvertComment(GetComment.Chat[] Serial)
+        private Video.Comment[] ConvertComment(GetComment.Chat[] Serial)
         {
-            var result = new Comment[Serial.Length];
+            var result = new Video.Comment[Serial.Length];
 
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = new Comment()
+                result[i] = new Video.Comment()
                 {
                     IsAnonymity = Serial[i].anonymity,
                     Body = Serial[i].body,
@@ -90,6 +139,7 @@ namespace NicoServiceAPI.NicoVideo.Serial
                     IsPremium = Serial[i].premium,
                     UserID = Serial[i].user_id,
                     WriteTime = unixTime.AddSeconds(double.Parse(Serial[i].date)).ToLocalTime(),
+                    Scores = int.Parse(Serial[i].scores),
                     IsYourPost = Serial[i].yourpost,
                 };
             }
@@ -97,27 +147,25 @@ namespace NicoServiceAPI.NicoVideo.Serial
             return result;
         }
 
-        private static Status ConvertStatus(string Serial, string ErrorCode)
+        private Status ConvertStatus(string Serial, Error ErrorCode)
         {
-            Status result;
-
             switch (Serial)
             {
-                case "ok": result = Status.OK; break;
+                case "ok": return Status.OK;
                 case "fail":
-                    switch (ErrorCode)
+                    if (ErrorCode == null) break;
+                    
+                    switch (ErrorCode.code)
                     {
-                        case "DELETED": result = Status.Deleted; break;
-                        default: result = Status.UnknownError; break;
+                        case "DELETED": return Status.Deleted;
                     }
                     break;
-                default: result = Status.UnknownError; break;
             }
 
-            return result;
+            return Status.UnknownError;
         }
 
-        private static TimeSpan ConvertTimeSpan(string Serial)
+        private TimeSpan ConvertTimeSpan(string Serial)
         {
             string[] buf = Serial.Split(':');
             var minute = int.Parse(buf[0]);
@@ -125,13 +173,13 @@ namespace NicoServiceAPI.NicoVideo.Serial
             return new TimeSpan((int)(minute / 60), minute % 60, int.Parse(buf[1]));
         }
 
-        private static Tag[] ConvertTags(GetInfo.Tags Serial)
+        private Video.Tag[] ConvertTags(GetInfo.Tags Serial)
         {
-            var result = new Tag[Serial.tag.Length];
+            var result = new Video.Tag[Serial.tag.Length];
 
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = new Tag()
+                result[i] = new Video.Tag()
                 {
                     Category = Serial.tag[i].category != 0,
                     Lock = Serial.tag[i]._lock != 0,
@@ -142,71 +190,112 @@ namespace NicoServiceAPI.NicoVideo.Serial
             return result;
         }
 
-        private static VideoInfo[] ConvertVideoInfo(Search.List[] Serial, Connection.Client Client)
+        private Video.VideoInfo[] ConvertVideoInfo(Search.List[] Serial)
         {
-            var result = new VideoInfo[Serial.Length];
+            var result = new Video.VideoInfo[Serial.Length];
 
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = new NicoVideo.VideoInfo()
-                {
-                    ComentCounter = Serial[i].num_res,
-                    ID = Serial[i].id,
-                    Length = ConvertTimeSpan(Serial[i].length),
-                    MylistCounter = Serial[i].mylist_counter,
-                    PostTime = DateTime.Parse(Serial[i].first_retrieve),
-                    ShortDescription = Serial[i].description_short,
-                    Thumbnail = new Thumbnail(Serial[i].thumbnail_url, Client),
-                    Title = Serial[i].title,
-                    ViewCounter = Serial[i].view_counter,
-                };
+                var info = (ic == null)
+                    ? new Video.VideoInfo(Serial[i].id)
+                    : ic.GetVideoInfo(Serial[i].id);
+
+               info.ComentCounter = Serial[i].num_res;
+               info.Length = ConvertTimeSpan(Serial[i].length);
+               info.MylistCounter = Serial[i].mylist_counter;
+               info.PostTime = DateTime.Parse(Serial[i].first_retrieve);
+               info.ShortDescription = Serial[i].description_short;
+               info.Title = Serial[i].title;
+               info.ViewCounter = Serial[i].view_counter;
+
+               //サムネイルは持っていない場合のみnew
+               info.Thumbnail = (info.Thumbnail == null)
+                   ? new Picture(Serial[i].thumbnail_url, client)
+                   : info.Thumbnail;
+
+               result[i] = info;
             }
 
             return result;
         }
 
-        private static Mylist ConvertMylist(GetMylist.Mylistitem[] MylistitemSerial, GroupCollection MylistInfoData, GroupCollection MylistUserInfoData, Connection.Client Client)
+        private User.Mylist ConvertMylist(GetMylist.Mylistitem[] MylistitemSerial, GroupCollection MylistInfoData, GroupCollection MylistUserInfoData)
         {
-            return new Mylist()
-            {
-                BookmarkCounter = (MylistUserInfoData == null) ? 0 : ConvertValue<int>(MylistUserInfoData["watched_count"].Value),
-                IsBookmark = (MylistUserInfoData == null) ? true : ConvertValue<bool>(MylistUserInfoData["is_watching_this_mylist"].Value),
-                Title = (MylistInfoData == null) ? "とりあえずマイリスト" : MylistInfoData["name"].Value,
-                Description = (MylistInfoData == null) ? "" : MylistInfoData["description"].Value,
-                IsPublic = (MylistInfoData== null ) ? false : ConvertValue<int>(MylistInfoData["public"].Value) != 0,
-                MylistItem = ConvertMylistItem(MylistitemSerial, Client),
-            };
+            var result = (ic == null)
+                ? (MylistInfoData == null)
+                ? new User.Mylist("")
+                : new User.Mylist(MylistInfoData["id"].Value)
+                : (MylistInfoData == null)
+                ? ic.GetMylist("")
+                : ic.GetMylist(MylistInfoData["id"].Value);
+
+            result.BookmarkCount = (MylistUserInfoData == null) ? 0 : ConvertValue<int>(MylistUserInfoData["watched_count"].Value);
+            result.CreateTime = unixTime.AddSeconds((MylistUserInfoData == null) ? 0 : ConvertValue<double>(MylistInfoData["create_time"].Value)).ToLocalTime();
+            result.IsBookmark = (MylistUserInfoData == null) ? false : ConvertValue<bool>(MylistUserInfoData["is_watching_this_mylist"].Value);
+            result.Title = (MylistInfoData == null) ? "とりあえずマイリスト" : MylistInfoData["name"].Value;
+            result.UpdateTime = unixTime.AddSeconds((MylistUserInfoData == null) ? 0 : ConvertValue<double>(MylistInfoData["update_time"].Value)).ToLocalTime();
+            result.Description = (MylistInfoData == null) ? "" : MylistInfoData["description"].Value;
+            result.IsPublic = (MylistInfoData == null) ? false : ConvertValue<int>(MylistInfoData["public"].Value) != 0;
+            result.MylistItem = ConvertMylistItem(MylistitemSerial);
+
+            return result;
         }
 
-        private static MylistItem[] ConvertMylistItem(GetMylist.Mylistitem[] Serial, Connection.Client Client)
+        private User.MylistItem[] ConvertMylistItem(GetMylist.Mylistitem[] Serial)
         {
-            var result = new MylistItem[Serial.Length];
+            var result = new User.MylistItem[Serial.Length];
 
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = new MylistItem()
+                result[i] = new User.MylistItem()
                 {
                     Description = Serial[i].description,
-                    RegisterTime = unixTime.AddSeconds(double.Parse(Serial[i].item_data.first_retrieve)).ToLocalTime(),
-                    VideoInfo = new VideoInfo()
-                    {
-                        ComentCounter = int.Parse(Serial[i].item_data.num_res),
-                        ID = Serial[i].item_data.video_id,
-                        Length = new TimeSpan(0, 0, int.Parse(Serial[i].item_data.length_seconds)),
-                        MylistCounter = int.Parse(Serial[i].item_data.mylist_counter),
-                        PostTime = unixTime.AddSeconds(double.Parse(Serial[i].item_data.first_retrieve)).ToLocalTime(),
-                        Thumbnail = new Thumbnail(Serial[i].item_data.thumbnail_url, Client),
-                        Title = Serial[i].item_data.title,
-                        ViewCounter = int.Parse(Serial[i].item_data.view_counter),
-                    },
+                    RegisterTime = unixTime.AddSeconds(double.Parse(Serial[i].create_time)).ToLocalTime(),
+                    UpdateTime = unixTime.AddSeconds(double.Parse(Serial[i].update_time)).ToLocalTime(),
+                    VideoInfo = (ic == null)
+                        ? new Video.VideoInfo(Serial[i].item_data.video_id)
+                        : ic.GetVideoInfo(Serial[i].item_data.video_id),
                 };
+
+                result[i].VideoInfo.ComentCounter = int.Parse(Serial[i].item_data.num_res);
+                result[i].VideoInfo.Length = new TimeSpan(0, 0, int.Parse(Serial[i].item_data.length_seconds));
+                result[i].VideoInfo.MylistCounter = int.Parse(Serial[i].item_data.mylist_counter);
+                result[i].VideoInfo.PostTime = unixTime.AddSeconds(double.Parse(Serial[i].item_data.first_retrieve)).ToLocalTime();
+                result[i].VideoInfo.Title = Serial[i].item_data.title;
+                result[i].VideoInfo.ViewCounter = int.Parse(Serial[i].item_data.view_counter);
+
+                //サムネイルは持っていない場合のみnew
+                result[i].VideoInfo.Thumbnail = (result[i].VideoInfo.Thumbnail == null)
+                    ? new Picture(Serial[i].item_data.thumbnail_url, client)
+                    : result[i].VideoInfo.Thumbnail;
+
             }
 
             return result;
         }
 
-        //GroupCollectionの値をParseした時、取得できなかった時に例外を出さないためにこの関数を通すこと
-        private static ValueTyoe ConvertValue<ValueTyoe>(string Value)
+        private User.Mylist[] ConvertMylistGroup(GetMylistGroup.MylistGroup[] Serial)
+        {
+            var result = new User.Mylist[Serial.Length];
+
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i] = (ic == null)
+                    ? new User.Mylist(Serial[i].id)
+                    : ic.GetMylist(Serial[i].id);
+
+                result[i].CreateTime = unixTime.AddSeconds(Serial[i].create_time).ToLocalTime();
+                result[i].Description = Serial[i].description;
+                result[i].IsPublic = Serial[i]._public;
+                result[i].Title = Serial[i].name;
+                result[i].UpdateTime = unixTime.AddSeconds(Serial[i].update_time).ToLocalTime();
+            }
+
+            return result;
+        }
+
+        //GroupCollectionの値をParseする時時、取得できなかった場合に例外を出さないためにこの関数を通すこと
+        private ValueTyoe ConvertValue<ValueTyoe>(string Value)
         {
             if (Value.Length != 0)
                 return (ValueTyoe)typeof(ValueTyoe)

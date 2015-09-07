@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Specialized;
 
-namespace NicoServiceAPI.NicoVideo
+namespace NicoServiceAPI.NicoVideo.Video
 {
     /******************************************/
     /// <summary>動画情報</summary>
@@ -32,7 +32,7 @@ namespace NicoServiceAPI.NicoVideo
         public string ShortDescription { set; get; }
 
         /// <summary>サムネイル画像</summary>
-        public Thumbnail Thumbnail { set; get; }
+        public Picture Thumbnail { set; get; }
 
         /// <summary>投稿日時</summary>
         public DateTime PostTime { set; get; }

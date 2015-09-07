@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace NicoServiceAPI.NicoVideo.Serial.GetInfo
+namespace NicoServiceAPI.NicoVideo.Serial
 {
     /// <summary>エラーコード</summary>
     public class Error

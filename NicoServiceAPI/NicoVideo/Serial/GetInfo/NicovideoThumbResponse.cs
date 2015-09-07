@@ -19,9 +19,5 @@ namespace NicoServiceAPI.NicoVideo.Serial.GetInfo
         /// <summary>成功か失敗か</summary>
         [XmlAttribute]
         public string status;
-
-        /// <summary>失敗した場合のメッセージ</summary>
-        [XmlAttribute]
-        public string message;
     }
 }

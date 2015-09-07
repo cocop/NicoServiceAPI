@@ -8,7 +8,7 @@ namespace NicoServiceAPI
     internal static class HtmlTextRegex
     {
         public static readonly Regex VideoDescription = new Regex("<p class=\"videoDescription description\">(?<value>.*?)</p>");
-        public static readonly Regex VideoMylistToken = new Regex("NicoAPI.token = \"(?<value>.*?)\";");
+        public static readonly Regex VideoMylistToken = new Regex("NicoAPI.token = \"(?<value>[0-9|a-f|-].*?)\";");
         public static readonly Regex VideoMylistUserInfo = new Regex("(Jarty.globals\\(\\{(?<value>.*?)\\}\\);)", RegexOptions.Singleline);
         public static readonly Regex VideoMylistInfo = new Regex("MylistGroup.preloadSingle\\(.*?, \\{(?<value>.*?)\\}\\);", RegexOptions.Singleline);
         public static readonly Regex VideoMylist = new Regex("Mylist.preload\\(.*?, (?<value>.*?)\\);", RegexOptions.Singleline);

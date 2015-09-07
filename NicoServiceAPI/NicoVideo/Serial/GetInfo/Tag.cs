@@ -12,11 +12,11 @@ namespace NicoServiceAPI.NicoVideo.Serial.GetInfo
         public string tag;
 
         /// <summary>カテゴリ</summary>
-        [XmlElement]
+        [XmlAttribute]
         public int category;
 
         /// <summary>タグロック</summary>
-        [XmlElement]
+        [XmlAttribute("lock")]
         public int _lock; //予約語なので先頭にハイフン
     }
 }

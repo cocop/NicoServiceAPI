@@ -14,10 +14,10 @@ namespace NicoServiceAPI.NicoVideo
         public SortTarget SortTarget { get; set; }
 
         /// <summary>投稿時間</summary>
-        public PostTime PostTime { get; set; }
+        public PostTimeFilter PostTimeFilter { get; set; }
 
         /// <summary>動画時間</summary>
-        public VideoTime VideoTime { get; set; }
+        public VideoTimeFilter VideoTimeFilter { get; set; }
 
         /******************************************/
         /******************************************/
@@ -29,16 +29,16 @@ namespace NicoServiceAPI.NicoVideo
 
         /// <summary>オプション指定して作成</summary>
         public SearchOption(
-            SortOrder   SortOrder,
-            SortTarget  SortTarget,
-            PostTime    PostTime,
-            VideoTime   VideoTime)
+            SortOrder       SortOrder,
+            SortTarget      SortTarget,
+            PostTimeFilter  PostTimeFilter,
+            VideoTimeFilter VideoTimeFilter)
         {
             
             this.SortOrder = SortOrder;
             this.SortTarget = SortTarget;
-            this.PostTime = PostTime;
-            this.VideoTime = VideoTime;
+            this.PostTimeFilter = PostTimeFilter;
+            this.VideoTimeFilter = VideoTimeFilter;
         }
 
         internal string ToKey()
@@ -98,18 +98,18 @@ namespace NicoServiceAPI.NicoVideo
             #endregion
 
             #region 投稿時間の指定
-            switch (PostTime)
+            switch (PostTimeFilter)
             {
-                case PostTime.None:
+                case PostTimeFilter.None:
                     Keys[postTime] = "";
                     break;
-                case PostTime.WithinDay:
+                case PostTimeFilter.WithinDay:
                     Keys[postTime] = "1";
                     break;
-                case PostTime.WithinWeek:
+                case PostTimeFilter.WithinWeek:
                     Keys[postTime] = "2";
                     break;
-                case PostTime.WithinMonth:
+                case PostTimeFilter.WithinMonth:
                     Keys[postTime] = "3";
                     break;
                 default:
@@ -118,15 +118,15 @@ namespace NicoServiceAPI.NicoVideo
             #endregion
 
             #region 再生時間の指定
-            switch (VideoTime)
+            switch (VideoTimeFilter)
             {
-                case VideoTime.None:
+                case VideoTimeFilter.None:
                     Keys[videoTime] = "";
                     break;
-                case VideoTime.Short:
+                case VideoTimeFilter.Short:
                     Keys[videoTime] = "1";
                     break;
-                case VideoTime.Long:
+                case VideoTimeFilter.Long:
                     Keys[videoTime] = "2";
                     break;
                 default:

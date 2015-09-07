@@ -3,7 +3,7 @@
     /******************************************/
     /// <summary>レスポンス</summary>
     /******************************************/
-    public abstract class Response
+    public class Response
     {
         /// <summary>レスポンスの可否</summary>
         public Status Status { set; get; }

@@ -1,4 +1,4 @@
-﻿namespace NicoServiceAPI.NicoVideo
+﻿namespace NicoServiceAPI.NicoVideo.User
 {
     /// <summary>マイリストレスポンス</summary>
     public class MylistResponse : Response

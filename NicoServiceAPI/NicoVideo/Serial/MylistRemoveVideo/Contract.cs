@@ -1,16 +1,16 @@
 ﻿using System.Runtime.Serialization;
 
-namespace NicoServiceAPI.NicoVideo.Serial.GetMylist
+namespace NicoServiceAPI.NicoVideo.Serial.MylistRemoveVideo
 {
     /******************************************/
-    /// <summary>マイリストレスポンス</summary>
+    /// <summary>マイリストからの動画削除レスポンス</summary>
     /******************************************/
     [DataContract]
     public class Contract
     {
-        /// <summary>マイリストの動画情報</summary>
+        /// <summary>削除した動画数</summary>
         [DataMember]
-        public Mylistitem[] mylistitem;
+        public string delete_count;
 
         /// <summary>成功か失敗か</summary>
         [DataMember]

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NicoServiceAPI.NicoVideo
+namespace NicoServiceAPI.NicoVideo.Video
 {
     /******************************************/
     /// <summary>コメント</summary>
@@ -31,8 +31,8 @@ namespace NicoServiceAPI.NicoVideo
         /// <summary>再生時間（分）</summary>
         public int Leaf;
 
-        ///// <summary>NG共有スコア</summary>
-        //public string Scores;/*!*/詳細調べ中
+        /// <summary>NG共有スコア</summary>
+        public int Scores;
 
         /// <summary>自分のコメントフラグ</summary>
         public bool IsYourPost;

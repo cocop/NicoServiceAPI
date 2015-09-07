@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NicoServiceAPI.NicoVideo
+namespace NicoServiceAPI.NicoVideo.User
 {
     /******************************************/
     /// <summary>マイリストアイテム</summary>
@@ -13,7 +13,10 @@ namespace NicoServiceAPI.NicoVideo
         /// <summary>登録時間</summary>
         public DateTime RegisterTime;
 
+        /// <summary>更新時間</summary>
+        public DateTime UpdateTime;
+
         /// <summary>動画情報</summary>
-        public VideoInfo VideoInfo;
+        public Video.VideoInfo VideoInfo;
     }
 }

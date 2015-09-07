@@ -10,23 +10,30 @@ namespace NicoServiceAPI
     /******************************************/
     public class NicoService
     {
-        Connection.Client client = new Connection.Client();
+        Context context = new Context();
         VideoService videoService;
 
         /******************************************/
         /******************************************/
+
+        /// <summary>初期化</summary>
+        public NicoService()
+        {
+            context.Client = new Connection.Client();
+        }
+
 
         /// <summary>ログインする</summary>
         /// <param name="Mail">メールアドレス</param>
         /// <param name="Password">パスワード</param>
         public bool Login(string Mail, string Password)
         {
-            client.Upload(
+            context.Client.Upload(
                 ApiUrls.Login,
                 Encoding.UTF8.GetBytes(
                     String.Format(PostTexts.Login, Mail, Password)));
 
-            foreach (Cookie cookie in client.CookieContainer.GetCookies(new Uri(ApiUrls.Host)))
+            foreach (Cookie cookie in context.Client.CookieContainer.GetCookies(new Uri(ApiUrls.Host)))
                 if (cookie.Name == "user_session")
                     return true;
             return false;
@@ -36,9 +43,22 @@ namespace NicoServiceAPI
         public VideoService GetVideoService()
         {
             if (videoService == null)
-                videoService = new VideoService(client);
+                videoService = new VideoService(context);
 
             return videoService;
+        }
+
+        /// <summary>内部生成で使用するインスタンスコンテナを設定します</summary>
+        /// <param name="InstanceContainer">設定するインスタンスコンテナ</param>
+        public void SetInstanceContainer(InstanceContainer InstanceContainer)
+        {
+            context.InstanceContainer = InstanceContainer;
+        }
+
+        /// <summary>内部生成で使用するインスタンスコンテナを取得します</summary>
+        public InstanceContainer GetInstanceContainer()
+        {
+            return context.InstanceContainer;
         }
     }
 }

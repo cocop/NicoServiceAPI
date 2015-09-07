@@ -28,8 +28,8 @@ namespace NicoServiceAPI.NicoVideo.Serial.Search
         [DataMember]
         public string status;
 
-        /// <summary>失敗した場合のメッセージ</summary>
+        /// <summary>エラーコード</summary>
         [DataMember]
-        public string message;
+        public Error error;
     }
 }

@@ -4,7 +4,7 @@ namespace NicoServiceAPI.NicoVideo
     /******************************************/
     /// <summary>投稿時間フィルタ</summary>
     /******************************************/
-    public enum VideoTime
+    public enum VideoTimeFilter
     {
         /// <summary>指定なし</summary>
         None,
