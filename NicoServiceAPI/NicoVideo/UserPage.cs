@@ -41,11 +41,12 @@ namespace NicoServiceAPI.NicoVideo
         }
 
         /// <summary>マイリストを取得する</summary>
-        /// <param name="Mylist">IDが空文字である場合、とりあえずマイリストを取得する、nullでない場合、指定したマイリストをHTML解析して取得する</param>
-        /// <param name="IsHtml">現在は無視される</param>
-        public MylistResponse DownloadMylist(Mylist Mylist, bool IsHtml = true)
+        /// <param name="Mylist">IDが空文字である場合、とりあえずマイリストを取得する</param>
+        /// <param name="IsHtml">マイリスト取得にHTMLを取得するかどうか</param>
+        public MylistResponse DownloadMylist(Mylist Mylist, bool IsHtml = false)
         {
-            var serialize = new DataContractJsonSerializer(typeof(Serial.GetMylist.Contract));
+            var deflistSerialize = new DataContractJsonSerializer(typeof(Serial.GetDeflist.Contract));
+            var mylistSerialize = new DataContractJsonSerializer(typeof(Serial.GetMylist.Contract));
             string mylistSerial;
             GroupCollection mylistInfo = null;
             GroupCollection mylistUserInfo = null;
@@ -55,10 +56,10 @@ namespace NicoServiceAPI.NicoVideo
                 mylistSerial = Encoding.UTF8.GetString(context.Client.Download(
                     ApiUrls.GetVideoDeflist));
             }
-            else //if (IsHtml)
+            else if (IsHtml)
             {
                 //HTML内にJSON文があるので抜き出してシリアライズ、JavaScriptオブジェクトもあるので一緒に抜き出す
-                var html = Encoding.UTF8.GetString(context.Client.Download(string.Format(ApiUrls.GetVideoMylist, Mylist.ID)));
+                var html = Encoding.UTF8.GetString(context.Client.Download(string.Format(ApiUrls.GetVideoMylistHtml, Mylist.ID)));
                 var mylist = HtmlTextRegex.VideoMylist.Match(html).Groups["value"].Value;
 
                 mylistInfo = HtmlTextRegex.VideoMylistInfoCutout.Match(
@@ -77,16 +78,16 @@ namespace NicoServiceAPI.NicoVideo
                     mylistSerial = "{" + "\"mylistitem\":[], \"status\" : \"fail\"}";
                 }
             }
-            //else//APIを使用してマイリストを取得する、この場合帰ってくるJSONが他と違うので注意
-            //{/*!*/
-            //    var mg = Common.UnicodeDecode(Encoding.UTF8.GetString(context.Client.Download(
-            //        "http://www.nicovideo.jp/api/watch/mylistvideo?id=39149572")));
-
-            //    return null;
-            //}
+            else//APIを使用してマイリストを取得する、この場合帰ってくるJSONが他と違うので注意
+            {
+                return converter.ConvertMylistResponse(
+                    (Serial.GetMylist.Contract)mylistSerialize.ReadObject(context.Client.OpenDownloadStream(
+                        string.Format(ApiUrls.GetVideoMylist, Mylist.ID))),
+                        Mylist.ID);
+            }
 
             return converter.ConvertMylistResponse(
-                (Serial.GetMylist.Contract)serialize.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(mylistSerial))),
+                (Serial.GetDeflist.Contract)deflistSerialize.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(mylistSerial))),
                 mylistInfo,
                 mylistUserInfo);
         }
@@ -101,7 +102,7 @@ namespace NicoServiceAPI.NicoVideo
             string responseSerial;
 
             if (IsGetToken)
-                Target.Token = HtmlTextRegex.VideoMylistToken.Match(Encoding.UTF8.GetString(context.Client.Download(
+                Target.token = HtmlTextRegex.VideoMylistToken.Match(Encoding.UTF8.GetString(context.Client.Download(
                     ApiUrls.Host + "my/mylist"))).Groups["value"].Value;
 
             if (Target.ID == "")
@@ -112,7 +113,7 @@ namespace NicoServiceAPI.NicoVideo
                         PostTexts.DeflistAddVideo,
                         AddItem.VideoInfo.ID,
                         AddItem.Description,
-                        Target.Token)))));
+                        Target.token)))));
             }
             else
             {
@@ -124,7 +125,7 @@ namespace NicoServiceAPI.NicoVideo
                         AddItem.VideoInfo.ID,
                         AddItem.Description,
                         "",
-                        Target.Token)))));
+                        Target.token)))));
             }
 
             return converter.ConvertMylistAddVideoResponse(
@@ -141,11 +142,11 @@ namespace NicoServiceAPI.NicoVideo
             string responseSerial;
 
             if (IsGetToken)
-                Target.Token = HtmlTextRegex.VideoMylistToken.Match(Encoding.UTF8.GetString(context.Client.Download(
+                Target.token = HtmlTextRegex.VideoMylistToken.Match(Encoding.UTF8.GetString(context.Client.Download(
                     ApiUrls.Host + "my/mylist"))).Groups["value"].Value;
 
-            var streams = new Streams<byte>(VideoPage.GetVideoAccessStream(RemoveItem, context.Client), () => 0);
-            streams.Run(streams.UntreatedStreamsCount);
+            var streams = new Streams<byte>(VideoPage.OpenVideoAccessStream(RemoveItem, context.Client), () => 0);
+            streams.Run(streams.UntreatedCount);
 
             if (Target.ID == "")
             {
@@ -154,7 +155,7 @@ namespace NicoServiceAPI.NicoVideo
                     Encoding.UTF8.GetBytes(string.Format(
                         PostTexts.DeflistRemoveVideo,
                         string.Format(PostTexts.ArrayMylistItem, RemoveItem.cache["thread_id"]),
-                        Target.Token)))));
+                        Target.token)))));
             }
             else
             {
@@ -164,7 +165,7 @@ namespace NicoServiceAPI.NicoVideo
                         PostTexts.MylistRemoveVideo,
                         Target.ID,
                         string.Format(PostTexts.ArrayMylistItem, RemoveItem.cache["thread_id"]),
-                        Target.Token)))));
+                        Target.token)))));
             }
 
             return converter.ConvertMylistRemoveVideoResponse(

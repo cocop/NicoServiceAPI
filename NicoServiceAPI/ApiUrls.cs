@@ -15,7 +15,8 @@
         public const string Mylist = "http://www.nicovideo.jp/my/mylist";
         public const string GetMylistGroup = "http://www.nicovideo.jp/api/mylistgroup/list";
         public const string GetVideoDeflist = "http://www.nicovideo.jp/api/deflist/list";
-        public const string GetVideoMylist = "http://www.nicovideo.jp/mylist/{0}";
+        public const string GetVideoMylistHtml = "http://www.nicovideo.jp/mylist/{0}";
+        public const string GetVideoMylist = "http://www.nicovideo.jp/api/watch/mylistvideo?id={0}";
 
         public const string DeflistAddVideo = "http://www.nicovideo.jp/api/deflist/add";
         public const string DeflistRemoveVideo = "http://www.nicovideo.jp/api/deflist/delete";

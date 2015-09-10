@@ -1,5 +1,5 @@
 ﻿using System.Runtime.Serialization;
-namespace NicoServiceAPI.NicoVideo.Serial.GetMylist
+namespace NicoServiceAPI.NicoVideo.Serial.GetDeflist
 {
     /******************************************/
     /// <summary>動画情報</summary>

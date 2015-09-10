@@ -51,6 +51,9 @@
     <Compile Include="Common.cs" />
     <Compile Include="InstanceContainer.cs" />
     <Compile Include="NicoService.cs" />
+    <Compile Include="NicoVideo\Serial\GetMylist\Contract.cs" />
+    <Compile Include="NicoVideo\Serial\GetMylist\List.cs" />
+    <Compile Include="NicoVideo\Serial\GetMylist\ThumbnailStyle.cs" />
     <Compile Include="NicoVideo\Serial\MylistAddVideo\Contract.cs" />
     <Compile Include="NicoVideo\Serial\GetMylistGroup\Contract.cs" />
     <Compile Include="NicoVideo\Serial\GetMylistGroup\MylistGroup.cs" />
@@ -77,9 +80,9 @@
     <Compile Include="NicoVideo\Serial\GetInfo\Tag.cs" />
     <Compile Include="NicoVideo\Serial\GetInfo\Tags.cs" />
     <Compile Include="NicoVideo\Serial\GetInfo\Thumb.cs" />
-    <Compile Include="NicoVideo\Serial\GetMylist\Contract.cs" />
-    <Compile Include="NicoVideo\Serial\GetMylist\ItemData.cs" />
-    <Compile Include="NicoVideo\Serial\GetMylist\Mylistitem.cs" />
+    <Compile Include="NicoVideo\Serial\GetDeflist\Contract.cs" />
+    <Compile Include="NicoVideo\Serial\GetDeflist\ItemData.cs" />
+    <Compile Include="NicoVideo\Serial\GetDeflist\Mylistitem.cs" />
     <Compile Include="NicoVideo\Serial\GetComment\Leaf.cs" />
     <Compile Include="NicoVideo\User\MylistResponse.cs" />
     <Compile Include="NicoVideo\Serial\Search\Contract.cs" />

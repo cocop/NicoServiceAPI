@@ -81,12 +81,22 @@ namespace NicoServiceAPI.NicoVideo.Serial
             };
         }
 
-        public User.MylistResponse ConvertMylistResponse(GetMylist.Contract Serial, GroupCollection MylistInfoData, GroupCollection MylistUserInfoData)
+        public User.MylistResponse ConvertMylistResponse(GetDeflist.Contract Serial, GroupCollection MylistInfoData, GroupCollection MylistUserInfoData)
         {
             return new User.MylistResponse()
             {
                 ErrorMessage = (Serial.error == null) ? null : Serial.error.description,
                 Mylist = ConvertMylist(Serial.mylistitem, MylistInfoData, MylistUserInfoData),
+                Status = ConvertStatus(Serial.status, Serial.error),
+            };
+        }
+
+        public User.MylistResponse ConvertMylistResponse(GetMylist.Contract Serial, string MylistID)
+        {
+            return new User.MylistResponse()
+            {
+                ErrorMessage = (Serial.error == null) ? null : Serial.error.description,
+                Mylist = ConvertMylist(Serial, MylistID),
                 Status = ConvertStatus(Serial.status, Serial.error),
             };
         }
@@ -139,7 +149,7 @@ namespace NicoServiceAPI.NicoVideo.Serial
                     IsPremium = Serial[i].premium,
                     UserID = Serial[i].user_id,
                     WriteTime = unixTime.AddSeconds(double.Parse(Serial[i].date)).ToLocalTime(),
-                    Scores = int.Parse(Serial[i].scores),
+                    Scores = int.Parse((Serial[i].scores == null) ? "0" : Serial[i].scores),
                     IsYourPost = Serial[i].yourpost,
                 };
             }
@@ -219,7 +229,7 @@ namespace NicoServiceAPI.NicoVideo.Serial
             return result;
         }
 
-        private User.Mylist ConvertMylist(GetMylist.Mylistitem[] MylistitemSerial, GroupCollection MylistInfoData, GroupCollection MylistUserInfoData)
+        private User.Mylist ConvertMylist(GetDeflist.Mylistitem[] MylistitemSerial, GroupCollection MylistInfoData, GroupCollection MylistUserInfoData)
         {
             var result = (ic == null)
                 ? (MylistInfoData == null)
@@ -238,10 +248,38 @@ namespace NicoServiceAPI.NicoVideo.Serial
             result.IsPublic = (MylistInfoData == null) ? false : ConvertValue<int>(MylistInfoData["public"].Value) != 0;
             result.MylistItem = ConvertMylistItem(MylistitemSerial);
 
+            if (MylistInfoData != null)
+            {
+                result.User = (ic == null)
+                    ? new User.User(MylistUserInfoData["user_id"].Value)
+                    : ic.GetUser(MylistUserInfoData["user_id"].Value);
+
+                result.User.Name = MylistUserInfoData["nickname"].Value;
+            }
+
             return result;
         }
 
-        private User.MylistItem[] ConvertMylistItem(GetMylist.Mylistitem[] Serial)
+        private User.Mylist ConvertMylist(GetMylist.Contract Serial, string MylistID)
+        {
+            var result = (ic == null)
+                ? new User.Mylist(MylistID)
+                : ic.GetMylist(MylistID);
+
+            result.Description = Serial.description;
+            result.Title = Serial.name;
+            result.IsBookmark = Serial.is_watching_this_mylist;
+            result.MylistItem = ConvertMylistItem(Serial.list);
+            result.User = (ic == null)
+                ? new User.User(Serial.user_id)
+                : ic.GetUser(Serial.user_id);
+
+            result.User.Name = Serial.user_nickname;
+
+            return result;
+        }
+
+        private User.MylistItem[] ConvertMylistItem(GetDeflist.Mylistitem[] Serial)
         {
             var result = new User.MylistItem[Serial.Length];
 
@@ -274,6 +312,33 @@ namespace NicoServiceAPI.NicoVideo.Serial
             return result;
         }
 
+        private User.MylistItem[] ConvertMylistItem(GetMylist.List[] Serial)
+        {
+            var result = new User.MylistItem[Serial.Length];
+
+            for (int i = 0; i < result.Length; i++)
+			{
+                result[i] = new User.MylistItem();
+                result[i].RegisterTime = unixTime.AddSeconds(Serial[i].create_time).ToLocalTime();
+                result[i].UpdateTime = DateTime.Parse(Serial[i].thread_update_time);
+                result[i].VideoInfo = (ic == null)
+                    ? new Video.VideoInfo(Serial[i].id)
+                    : ic.GetVideoInfo(Serial[i].id);
+
+                result[i].VideoInfo.ComentCounter = Serial[i].num_res;
+                result[i].VideoInfo.ID = Serial[i].id;
+                result[i].VideoInfo.Length = new TimeSpan(0, 0, Serial[i].length_seconds);
+                result[i].VideoInfo.MylistCounter = Serial[i].mylist_counter;
+                result[i].VideoInfo.PostTime = DateTime.Parse(Serial[i].first_retrieve);
+                result[i].VideoInfo.ShortDescription = Serial[i].description_short;
+                result[i].VideoInfo.Thumbnail = new Picture(Serial[i].thumbnail_url, context.Client);
+                result[i].VideoInfo.Title = Serial[i].title;
+                result[i].VideoInfo.ViewCounter = Serial[i].view_counter;
+            }
+
+            return result;
+        }
+
         private User.Mylist[] ConvertMylistGroup(GetMylistGroup.MylistGroup[] Serial)
         {
             var result = new User.Mylist[Serial.Length];
@@ -294,7 +359,7 @@ namespace NicoServiceAPI.NicoVideo.Serial
             return result;
         }
 
-        //GroupCollectionの値をParseする時時、取得できなかった場合に例外を出さないためにこの関数を通すこと
+        //GroupCollectionの値をParseする時、取得できなかった場合に例外を出さないためにこの関数を通すこと
         private ValueTyoe ConvertValue<ValueTyoe>(string Value)
         {
             if (Value.Length != 0)

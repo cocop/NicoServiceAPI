@@ -12,7 +12,7 @@ namespace NicoServiceAPI.Connection
         public StreamType NowStreamType { get; private set; }
 
         /// <summary>未処理のストリーム数</summary>
-        public int UntreatedStreamsCount { get { return streamDatas.Length - nowIndex; } }
+        public int UntreatedCount { get { return streamDatas.Length - nowIndex; } }
 
         internal int nowIndex;
         internal StreamData[] streamDatas;
@@ -89,7 +89,7 @@ namespace NicoServiceAPI.Connection
         /// <param name="RunCount">処理するストリームの数</param>
         public DataType Run(int RunCount)
         {
-            if (RunCount <= 0 && RunCount > UntreatedStreamsCount)
+            if (RunCount <= 0 && RunCount > UntreatedCount)
                 return default(DataType);
 
             for (int i = 0; i < RunCount; i++)

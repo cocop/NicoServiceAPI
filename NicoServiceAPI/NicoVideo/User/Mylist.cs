@@ -22,8 +22,8 @@ namespace NicoServiceAPI.NicoVideo.User
         /******************************************/
         /******************************************/
         
-        //// <summary>マイリストユーザー</summary>
-        //public User User { get; set; }
+        /// <summary>マイリストユーザー</summary>
+        public User User { get; set; }
 
         /// <summary>マイリストID、空文字である場合はとりあえずマイリスト</summary>
         public string ID { get; set; }
@@ -53,6 +53,6 @@ namespace NicoServiceAPI.NicoVideo.User
         public MylistItem[] MylistItem { get; set; }
 
         /// <summary>マイリスト操作用トークン</summary>
-        internal string Token { get; set; }
+        internal string token { get; set; }
     }
 }

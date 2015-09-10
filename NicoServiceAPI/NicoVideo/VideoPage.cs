@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 namespace NicoServiceAPI.NicoVideo
 {
     /******************************************/
-    /// <summary>動画へアクセスする</summary>
+    /// <summary>動画ページへアクセスする</summary>
     /******************************************/
     public class VideoPage
     {
@@ -32,18 +32,35 @@ namespace NicoServiceAPI.NicoVideo
         /// <param name="VideoInfo">ダウンロードする動画の指定</param>
         public byte[] DownloadVideo(VideoInfo VideoInfo)
         {
-            var streams = GetVideoDownloadStream(VideoInfo);
-            return streams.Run(streams.UntreatedStreamsCount);
+            var streams = OpenVideoDownloadStream(VideoInfo);
+            return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>動画をダウンロードするストリームを取得する</summary>
         /// <param name="VideoInfo">ダウンロードする動画の指定</param>
-        public Connection.Streams<byte[]> GetVideoDownloadStream(VideoInfo VideoInfo)
+        public Connection.Streams<byte[]> OpenVideoDownloadStream(VideoInfo VideoInfo)
         {
             var streamDataList = new List<Connection.StreamData>();
             byte[] result = null;
 
-            streamDataList.AddRange(GetVideoAccessStream(VideoInfo, context.Client));
+            streamDataList.AddRange(OpenVideoAccessStream(VideoInfo, context.Client));
+            streamDataList.Add(
+                new Connection.StreamData()
+                {
+                    StreamType = Connection.StreamType.Read,
+                    GetStream = (size) =>
+                    {
+                        try
+                        {
+                            return context.Client.OpenDownloadStream(ApiUrls.Host + "watch/" + VideoInfo.ID);
+                        }
+                        catch (WebException e)
+                        {
+                            throw new WebException("動画ページにアクセス出来ませんでした", e);
+                        }
+                    },
+                    SetReadData = (data) => { },
+                });
             streamDataList.Add(
                 new Connection.StreamData()
                 {
@@ -71,19 +88,19 @@ namespace NicoServiceAPI.NicoVideo
         /// <param name="VideoInfo">ダウンロードするコメントの動画IDを指定</param>
         public CommentResponse DownloadComment(VideoInfo VideoInfo)
         {
-            var streams = GetCommentDownloadStream(VideoInfo);
-            return streams.Run(streams.UntreatedStreamsCount);
+            var streams = OpenCommentDownloadStream(VideoInfo);
+            return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>コメントをダウンロードするストリームを取得する</summary>
         /// <param name="VideoInfo">ダウンロードするコメントの動画IDを指定</param>
-        public Connection.Streams<CommentResponse> GetCommentDownloadStream(VideoInfo VideoInfo)
+        public Connection.Streams<CommentResponse> OpenCommentDownloadStream(VideoInfo VideoInfo)
         {
             var streamDataList = new List<Connection.StreamData>();
             Connection.Streams uploadStreams = null;
             MemoryStream stream = null;
 
-            streamDataList.AddRange(GetVideoAccessStream(VideoInfo, context.Client));
+            streamDataList.AddRange(OpenVideoAccessStream(VideoInfo, context.Client));
             streamDataList.Add(new Connection.StreamData()
             {   //リクエスト
                 StreamType = Connection.StreamType.Write,
@@ -141,14 +158,14 @@ namespace NicoServiceAPI.NicoVideo
         /// <param name="IsHtml">合わせてHtmlから情報を取得するか、現在動画説明文のみ</param>
         public VideoInfoResponse DownloadVideoInfo(VideoInfo VideoInfo, bool IsHtml = true)
         {
-            var streams = GetVideoInfoDownloadStream(VideoInfo, IsHtml);
-            return streams.Run(streams.UntreatedStreamsCount);
+            var streams = OpenVideoInfoDownloadStream(VideoInfo, IsHtml);
+            return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>>動画の詳細情報を取得するストリームを取得する、情報は0番目の配列に格納される</summary>
         /// <param name="VideoInfo">情報取得する動画を指定する</param>
         /// <param name="IsHtml">合わせてHtmlから情報を取得するか、現在動画説明文のみ</param>
-        public Connection.Streams<VideoInfoResponse> GetVideoInfoDownloadStream(VideoInfo VideoInfo, bool IsHtml = true)
+        public Connection.Streams<VideoInfoResponse> OpenVideoInfoDownloadStream(VideoInfo VideoInfo, bool IsHtml = true)
         {
             var streamDataList = new List<Connection.StreamData>();
             VideoInfoResponse lastData = null;
@@ -205,7 +222,7 @@ namespace NicoServiceAPI.NicoVideo
         }
 
 
-        internal static Connection.StreamData[] GetVideoAccessStream(VideoInfo VideoInfo, Connection.Client Client)
+        internal static Connection.StreamData[] OpenVideoAccessStream(VideoInfo VideoInfo, Connection.Client Client)
         {
             if (VideoInfo.cache != null) return new Connection.StreamData[0];
 

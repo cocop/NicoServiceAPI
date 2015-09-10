@@ -20,10 +20,10 @@ namespace NicoServiceAPI.NicoVideo.User
         }
 
         /// <summary>ユーザーID</summary>
-        string ID { get; set; }
+        public string ID { get; set; }
 
         /// <summary>ユーザー名</summary>
-        string Name { get; set; }
+        public string Name { get; set; }
 
         /// <summary>性別</summary>
         public string Sex { get; set; }
