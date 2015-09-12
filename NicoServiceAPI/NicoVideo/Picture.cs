@@ -10,10 +10,10 @@ namespace NicoServiceAPI.NicoVideo
         /// <summary>ダウンロード済みかどうか</summary>
         public bool IsDownloaded { set; get; }
 
-        /// <summary>サムネイルデータのURL</summary>
+        /// <summary>画像データのURL</summary>
         public string Url { private set; get; }
 
-        /// <summary>サムネイルデータ</summary>
+        /// <summary>画像データ</summary>
         public byte[] Data { set; get; }
 
 
@@ -22,8 +22,8 @@ namespace NicoServiceAPI.NicoVideo
         /******************************************/
         /******************************************/
 
-        /// <summary>自動生成される動画サムネイル</summary>
-        /// <param name="Url">サムネイルデータのURL</param>
+        /// <summary>自動生成される画像データ</summary>
+        /// <param name="Url">画像データのURL</param>
         /// <param name="Client">クッキーを持っているClient</param>
         internal Picture(string Url, Connection.Client Client)
         {
@@ -32,13 +32,13 @@ namespace NicoServiceAPI.NicoVideo
             client = Client;
         }
 
-        /// <summary>サムネイルダウンロード用ストリームの取得</summary>
+        /// <summary>画像ダウンロード用ストリームの取得</summary>
         public Stream GetStream()
         {
             return client.OpenDownloadStream(Url);
         }
 
-        /// <summary>サムネイルのダウンロード</summary>
+        /// <summary>画像のダウンロード</summary>
         public byte[] Download()
         {
             Data = client.Download(Url);

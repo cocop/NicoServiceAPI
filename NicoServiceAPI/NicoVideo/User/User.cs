@@ -25,6 +25,9 @@ namespace NicoServiceAPI.NicoVideo.User
         /// <summary>ユーザー名</summary>
         public string Name { get; set; }
 
+        /// <summary>説明文</summary>
+        public string Description { get; set; }
+
         /// <summary>性別</summary>
         public string Sex { get; set; }
 
@@ -42,5 +45,8 @@ namespace NicoServiceAPI.NicoVideo.User
 
         /// <summary>アイコン</summary>
         public Picture Icon { get; set; }
+
+        /// <summary>プレミアムかどうか</summary>
+        public bool IsPremium { get; set; }
     }
 }

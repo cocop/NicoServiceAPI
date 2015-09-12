@@ -22,6 +22,9 @@ namespace NicoServiceAPI.NicoVideo.Video
         /******************************************/
         /******************************************/
 
+        /// <summary>投稿者ユーザー</summary>
+        public User.User User { set; get; }
+
         /// <summary>動画ID</summary>
         public string ID { set; get; }
 

@@ -12,6 +12,8 @@
         public const string GetVideo = "http://flapi.nicovideo.jp/api/getflv/{0}?as3=1";
         public const string GetVideoInfo = "http://ext.nicovideo.jp/api/getthumbinfo/{0}";
 
+        public const string GetVideoUserHtml = "http://www.nicovideo.jp/user/{0}";
+
         public const string Mylist = "http://www.nicovideo.jp/my/mylist";
         public const string GetMylistGroup = "http://www.nicovideo.jp/api/mylistgroup/list";
         public const string GetVideoDeflist = "http://www.nicovideo.jp/api/deflist/list";

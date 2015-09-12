@@ -28,7 +28,7 @@ namespace NicoServiceAPI.NicoVideo.Serial
             return new Video.CommentResponse()
             {
                 Comment = ConvertComment(Serial.chat),
-                Status = ConvertStatus("ok", null),
+                Status = Status.OK,
             };
         }
 
@@ -58,12 +58,14 @@ namespace NicoServiceAPI.NicoVideo.Serial
                 info.VideoSize = Serial.thumb.size_high;
                 info.VideoType = Serial.thumb.movie_type;
                 info.ViewCounter = Serial.thumb.view_counter;
+                info.Thumbnail = NewPicture(info.Thumbnail, Serial.thumb.thumbnail_url);
 
-                //サムネイルは持っていない場合のみnew
-                info.Thumbnail = (info.Thumbnail == null)
-                    ? new Picture(Serial.thumb.thumbnail_url, client)
-                    : info.Thumbnail;
+                info.User = (ic == null)
+                    ? new User.User(Serial.thumb.user_id)
+                    : ic.GetUser(Serial.thumb.user_id);
 
+                info.User.Name = Serial.thumb.user_nickname;
+                info.User.Icon = NewPicture(info.User.Icon, Serial.thumb.user_icon_url);
 
                 result.VideoInfos = new Video.VideoInfo[] { info };
             }
@@ -130,6 +132,34 @@ namespace NicoServiceAPI.NicoVideo.Serial
             };
         }
 
+        internal UserResponse ConvertUserResponse(GroupCollection[] Serial)
+        {
+            var result = new UserResponse();
+
+            if (Serial[1]["id"].Value == "")
+            {
+                result.Status = Status.UnknownError;
+                return result;
+            }
+
+            result.User = (ic == null)
+                ? new User.User(Serial[1]["id"].Value)
+                : ic.GetUser(Serial[1]["id"].Value);
+
+            result.Status = Status.OK;
+            result.User.Icon = NewPicture(result.User.Icon, Serial[0]["icon"].Value);
+            result.User.Name = Serial[0]["name"].Value;
+            result.User.IsPremium = Serial[1]["category"].Value == "プレミアム会員";
+            result.User.Sex = Serial[1]["sex"].Value;
+            result.User.Birthday = Serial[1]["birthday"].Value;
+            result.User.Area = Serial[1]["area"].Value;
+            result.User.BookmarkCount = ConvertValue<int>(Serial[2]["bookmark"].Value);
+            result.User.Experience = ConvertValue<int>(Serial[2]["exp"].Value);
+            result.User.Description = Serial[3]["description"].Value;
+
+            return result;
+        }
+
         /********************************************/
 
         private Video.Comment[] ConvertComment(GetComment.Chat[] Serial)
@@ -183,6 +213,13 @@ namespace NicoServiceAPI.NicoVideo.Serial
             return new TimeSpan((int)(minute / 60), minute % 60, int.Parse(buf[1]));
         }
 
+        private Picture NewPicture(Picture Target, string PictureURL)
+        {
+            if (Target == null)
+                return new Picture(PictureURL, client);
+            return Target;
+        }
+
         private Video.Tag[] ConvertTags(GetInfo.Tags Serial)
         {
             var result = new Video.Tag[Serial.tag.Length];
@@ -217,12 +254,7 @@ namespace NicoServiceAPI.NicoVideo.Serial
                info.ShortDescription = Serial[i].description_short;
                info.Title = Serial[i].title;
                info.ViewCounter = Serial[i].view_counter;
-
-               //サムネイルは持っていない場合のみnew
-               info.Thumbnail = (info.Thumbnail == null)
-                   ? new Picture(Serial[i].thumbnail_url, client)
-                   : info.Thumbnail;
-
+               info.Thumbnail = NewPicture(info.Thumbnail, Serial[i].thumbnail_url);
                result[i] = info;
             }
 
@@ -301,11 +333,7 @@ namespace NicoServiceAPI.NicoVideo.Serial
                 result[i].VideoInfo.PostTime = unixTime.AddSeconds(double.Parse(Serial[i].item_data.first_retrieve)).ToLocalTime();
                 result[i].VideoInfo.Title = Serial[i].item_data.title;
                 result[i].VideoInfo.ViewCounter = int.Parse(Serial[i].item_data.view_counter);
-
-                //サムネイルは持っていない場合のみnew
-                result[i].VideoInfo.Thumbnail = (result[i].VideoInfo.Thumbnail == null)
-                    ? new Picture(Serial[i].item_data.thumbnail_url, client)
-                    : result[i].VideoInfo.Thumbnail;
+                result[i].VideoInfo.Thumbnail = NewPicture(result[i].VideoInfo.Thumbnail, Serial[i].item_data.thumbnail_url);
 
             }
 
@@ -331,7 +359,7 @@ namespace NicoServiceAPI.NicoVideo.Serial
                 result[i].VideoInfo.MylistCounter = Serial[i].mylist_counter;
                 result[i].VideoInfo.PostTime = DateTime.Parse(Serial[i].first_retrieve);
                 result[i].VideoInfo.ShortDescription = Serial[i].description_short;
-                result[i].VideoInfo.Thumbnail = new Picture(Serial[i].thumbnail_url, context.Client);
+                result[i].VideoInfo.Thumbnail = NewPicture(result[i].VideoInfo.Thumbnail, Serial[i].thumbnail_url);
                 result[i].VideoInfo.Title = Serial[i].title;
                 result[i].VideoInfo.ViewCounter = Serial[i].view_counter;
             }

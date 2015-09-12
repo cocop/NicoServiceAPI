@@ -28,6 +28,22 @@ namespace NicoServiceAPI.NicoVideo
             converter = new Serial.Converter(context);
         }
 
+        /// <summary>指定したユーザーデータを取得する</summary>
+        /// <param name="User">ユーザーの指定</param>
+        public UserResponse DownloadUser(User.User User)
+        {
+            var html = Encoding.UTF8.GetString(context.Client.Download(string.Format(ApiUrls.GetVideoUserHtml, User.ID)));
+
+            return converter.ConvertUserResponse(
+                new GroupCollection[]
+                {
+                    HtmlTextRegex.VideoUserCutouts[0].Match(html).Groups,
+                    HtmlTextRegex.VideoUserCutouts[1].Match(html).Groups,
+                    HtmlTextRegex.VideoUserCutouts[2].Match(html).Groups,
+                    HtmlTextRegex.VideoUserCutouts[3].Match(html).Groups
+                });
+        }
+
         /// <summary>マイリストグループを取得する、現在は自分のマイリストグループのみ、ユーザー指定は無視される</summary>
         /// <param name="User">ユーザーの指定</param>
         public MylistGroupResponse DownloadMylistGroup(User.User User)

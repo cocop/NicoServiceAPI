@@ -7,6 +7,14 @@ namespace NicoServiceAPI
     /******************************************/
     internal static class HtmlTextRegex
     {
+        public static readonly Regex[] VideoUserCutouts =
+        {
+            new Regex("\\<div class=\"userDetail\"\\>\n\t\\<div class=\"avatar\"\\>\n\t\t\\<img src=\"(?<icon>.*?)\" alt=\"(?<name>.*?)\" />\n\t</div>"),
+            new Regex("\t\t\\<div class=\"account\"\\>\n\t\t\t\\<p class=\"accountNumber\"\\>ID:\\<span\\>(?<id>.*?)\\((?<version>.*?)\\) (?<category>.*?)\\</span\\>\\</p\\>\n\t\t\t\\<p\\>性別:\\<span\\>(?<sex>.*?)\\</span\\>\\</p\\>\n\t\t\t\\<p\\>生年月日:\\<span\\>(?<birthday>.*?)\\</span\\>\\</p\\>\n\t\t\t\\<p\\>お住まいの地域:\\<span\\>(?<area>.*?)\\</span\\>\\</p\\>\n\t\t\\</div\\>"),
+            new Regex("\t\t\t\\<li class=\"fav\" title=\"お気に入り登録された数\"\\>\\<span\\>\\</span\\>(?<bookmark>.*?)\\</li>\n\t\t\t\\<li class=\"exp\" title=\"スタンプ経験値\"\\>\\<a href=\".*?\"\\>\\<span\\>\\</span\\>(?<exp>[0-9].*?)EXP\\</a\\>\\</li\\>"),
+            new Regex("\t\t\t\t\\<p id=\"description_full\" style=\"display: none;\"\\>\n\t\t\t\t\t\\<span\\>(?<description>.*?)\\</span\\>\n\t\t\t\t\\</p\\>", RegexOptions.Singleline),
+        };
+
         public static readonly Regex VideoDescription = new Regex("<p class=\"videoDescription description\">(?<value>.*?)</p>");
         public static readonly Regex VideoMylistToken = new Regex("NicoAPI.token = \"(?<value>[0-9|a-f|-].*?)\";");
         public static readonly Regex VideoMylistUserInfo = new Regex("(Jarty.globals\\(\\{(?<value>.*?)\\}\\);)", RegexOptions.Singleline);

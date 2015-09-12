@@ -58,6 +58,7 @@
     <Compile Include="NicoVideo\Serial\GetMylistGroup\Contract.cs" />
     <Compile Include="NicoVideo\Serial\GetMylistGroup\MylistGroup.cs" />
     <Compile Include="NicoVideo\Serial\MylistRemoveVideo\Contract.cs" />
+    <Compile Include="NicoVideo\UserResponse.cs" />
     <Compile Include="NicoVideo\User\MylistRemoveVideoResponse.cs" />
     <Compile Include="NicoVideo\User\MylistGroupResponse.cs" />
     <Compile Include="NicoVideo\UserPage.cs" />
