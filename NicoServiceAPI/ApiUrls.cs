@@ -12,6 +12,8 @@
         public const string GetVideo = "http://flapi.nicovideo.jp/api/getflv/{0}?as3=1";
         public const string GetVideoInfo = "http://ext.nicovideo.jp/api/getthumbinfo/{0}";
 
+        public const string PostVideoComment = "http://flapi.nicovideo.jp/api/getpostkey/?yugi=&version_sub=2&device=1&block_no={0}&version=1&thread={1}";
+
         public const string GetVideoUserHtml = "http://www.nicovideo.jp/user/{0}";
 
         public const string Mylist = "http://www.nicovideo.jp/my/mylist";

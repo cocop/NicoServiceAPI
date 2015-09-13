@@ -84,8 +84,77 @@ namespace NicoServiceAPI.NicoVideo
                 () => result);
         }
 
+        /// <summary>コメントをアップロードする</summary>
+        /// <param name="VideoInfo">アップロードするコメントの動画ID</param>
+        /// <param name="Comment">投稿するコメント</param>
+        public Response UploadComment(VideoInfo VideoInfo, Comment Comment)
+        {
+            var streams = OpenCommentUploadStream(VideoInfo, Comment);
+            return streams.Run(streams.UntreatedCount);
+        }
+
+        /// <summary>コメントをアップロードするストリームを取得する</summary>
+        /// <param name="VideoInfo">アップロードするコメントの動画ID</param>
+        /// <param name="Comment">投稿するコメント</param>
+        public Connection.Streams<Response> OpenCommentUploadStream(VideoInfo VideoInfo, Comment Comment)
+        {
+            var streamDataList = new List<Connection.StreamData>();
+            string postkey = null;
+            Response lastData = null;
+
+            streamDataList.AddRange(OpenVideoAccessStream(VideoInfo, context.Client));
+
+            if (VideoInfo.cache == null || VideoInfo.cache.Count < 15)
+                streamDataList.AddRange(OpenCommentDownloadStream(VideoInfo).GetStreamDatas());
+
+            streamDataList.Add(
+                new Connection.StreamData()
+                {
+                    StreamType = Connection.StreamType.Read,
+                    GetStream = (size) =>
+                    {
+                        return context.Client.OpenDownloadStream(
+                            string.Format(ApiUrls.PostVideoComment,
+                                VideoInfo.cache["block_no"],
+                                VideoInfo.cache["thread_id"]));
+                    },
+                    SetReadData = (data) =>
+                    {
+                        postkey = Uri.UnescapeDataString(Encoding.UTF8.GetString(data)).Replace("postkey=", "");
+                    },
+                });
+
+            var uploadStreamData = context.Client.OpenUploadStream(VideoInfo.cache["ms"]).GetStreamDatas();
+            uploadStreamData[0].GetWriteData = () =>
+            {
+                return Encoding.UTF8.GetBytes(
+                    string.Format(PostTexts.PostVideoComment,
+                        VideoInfo.cache["thread_id"],
+                        ((int)(Comment.PlayTime.TotalMilliseconds / 10)).ToString(),
+                        Comment.Command,
+                        VideoInfo.cache["ticket"],
+                        VideoInfo.cache["user_id"],
+                        postkey,
+                        Comment.Body));
+            };
+
+            uploadStreamData[1].SetReadData = (data) =>
+            {
+                var serialize = new XmlSerializer(typeof(Serial.PostComment.Packet));
+                var serial = (Serial.PostComment.Packet)serialize.Deserialize(new MemoryStream(data));
+                lastData = converter.ConvertResponse(serial);
+                VideoInfo.cache["block_no"] = ((int)((serial.chat_result.no + 1) / 100)).ToString();//更新
+            };
+            streamDataList.AddRange(uploadStreamData);
+
+            return new Connection.Streams<Response>(
+            
+                streamDataList.ToArray(),
+                () => lastData);
+        }
+
         /// <summary>コメントをダウンロードする</summary>
-        /// <param name="VideoInfo">ダウンロードするコメントの動画IDを指定</param>
+        /// <param name="VideoInfo">ダウンロードするコメントの動画ID</param>
         public CommentResponse DownloadComment(VideoInfo VideoInfo)
         {
             var streams = OpenCommentDownloadStream(VideoInfo);
@@ -98,7 +167,7 @@ namespace NicoServiceAPI.NicoVideo
         {
             var streamDataList = new List<Connection.StreamData>();
             Connection.Streams uploadStreams = null;
-            MemoryStream stream = null;
+            CommentResponse lastData = null;
 
             streamDataList.AddRange(OpenVideoAccessStream(VideoInfo, context.Client));
             streamDataList.Add(new Connection.StreamData()
@@ -141,16 +210,21 @@ namespace NicoServiceAPI.NicoVideo
                         throw new WebException("コメントサーバーにアクセスできません", e);
                     }
                 },
-                SetReadData = (data) => stream = new MemoryStream(data),
+                SetReadData = (data) =>
+                {
+                    var serialize = new XmlSerializer(typeof(Serial.GetComment.Packet));
+                    var serial = (Serial.GetComment.Packet)serialize.Deserialize(new MemoryStream(data));
+
+                    VideoInfo.cache.Add("ticket", serial.thread[0].ticket);
+                    VideoInfo.cache.Add("block_no", ((int)((serial.thread[0].last_res + 1) / 100)).ToString());
+
+                    lastData = converter.ConvertCommentResponse(serial);
+                }
             });
 
             return new Connection.Streams<CommentResponse>(
                 streamDataList.ToArray(),
-                () =>
-                {
-                    var serialize = new XmlSerializer(typeof(Serial.GetComment.Packet));
-                    return converter.ConvertCommentResponse((Serial.GetComment.Packet)serialize.Deserialize(stream));
-                });
+                () => lastData );
         }
 
         /// <summary>>動画の詳細情報を取得する、情報は0番目の配列に格納される</summary>

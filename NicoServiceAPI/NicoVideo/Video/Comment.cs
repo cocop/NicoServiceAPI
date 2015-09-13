@@ -8,36 +8,36 @@ namespace NicoServiceAPI.NicoVideo.Video
     public class Comment
     {
         /// <summary>コメント番号</summary>
-        public int No;
+        public int No { get; set; }
 
         /// <summary>再生位置</summary>
-        public TimeSpan PlayTime;
+        public TimeSpan PlayTime { get; set; }
 
         /// <summary>投稿時間</summary>
-        public DateTime WriteTime;
+        public DateTime WriteTime { get; set; }
 
         /// <summary>コマンド</summary>
-        public string Command;
+        public string Command { get; set; }
 
         /// <summary>ユーザーID</summary>
-        public string UserID;
+        public string UserID { get; set; }
 
         /// <summary>暗号ユーザーIDフラグ</summary>
-        public string IsAnonymity;
+        public string IsAnonymity { get; set; }
 
         /// <summary>プレミアムフラグ</summary>
-        public bool IsPremium;
+        public bool IsPremium { get; set; }
 
         /// <summary>再生時間（分）</summary>
-        public int Leaf;
+        public int Leaf { get; set; }
 
         /// <summary>NG共有スコア</summary>
-        public int Scores;
+        public int Scores { get; set; }
 
         /// <summary>自分のコメントフラグ</summary>
-        public bool IsYourPost;
+        public bool IsYourPost { get; set; }
 
         /// <summary>コメント本文</summary>
-        public string Body;
+        public string Body { get; set; }
     }
 }

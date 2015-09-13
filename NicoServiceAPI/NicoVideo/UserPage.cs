@@ -28,9 +28,10 @@ namespace NicoServiceAPI.NicoVideo
             converter = new Serial.Converter(context);
         }
 
-        /// <summary>指定したユーザーデータを取得する</summary>
+        /// <summary>指定したユーザー情報を取得する</summary>
         /// <param name="User">ユーザーの指定</param>
-        public UserResponse DownloadUser(User.User User)
+        /// <param name="IsHtml">ユーザー情報取得にHTMLを使用するかどうか、現在使用不可</param>
+        public UserResponse DownloadUser(User.User User, bool IsHtml = true)
         {
             var html = Encoding.UTF8.GetString(context.Client.Download(string.Format(ApiUrls.GetVideoUserHtml, User.ID)));
 
@@ -58,7 +59,7 @@ namespace NicoServiceAPI.NicoVideo
 
         /// <summary>マイリストを取得する</summary>
         /// <param name="Mylist">IDが空文字である場合、とりあえずマイリストを取得する</param>
-        /// <param name="IsHtml">マイリスト取得にHTMLを取得するかどうか</param>
+        /// <param name="IsHtml">マイリスト取得にHTMLを使用するかどうか</param>
         public MylistResponse DownloadMylist(Mylist Mylist, bool IsHtml = false)
         {
             var deflistSerialize = new DataContractJsonSerializer(typeof(Serial.GetDeflist.Contract));

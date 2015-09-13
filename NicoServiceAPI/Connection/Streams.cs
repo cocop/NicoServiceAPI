@@ -42,6 +42,11 @@ namespace NicoServiceAPI.Connection
 
             return streamDatas[nowIndex].GetStream(WriteSize);
         }
+
+        internal StreamData[] GetStreamDatas()
+        {
+            return streamDatas;
+        }
     }
 
     /******************************************/
@@ -98,16 +103,21 @@ namespace NicoServiceAPI.Connection
                 {
                     case NicoServiceAPI.Connection.StreamType.Read:
                         {
-                            var buf = new MemoryStream();
-                            GetStream().CopyTo(buf);
-                            SetReadData(buf.ToArray());
+                            using (var source = GetStream())
+                            using (var destination = new MemoryStream())
+                            {
+                                source.CopyTo(destination);
+                                SetReadData(destination.ToArray());
+                            }
                         } break;
 
                     case NicoServiceAPI.Connection.StreamType.Write:
                         {
                             var data = GetWriteData();
-                            var stream = new MemoryStream(data);
-                            stream.CopyTo(GetStream(data.Length));
+
+                            using (var source = new MemoryStream(data))
+                            using (var destination = GetStream(data.Length))
+                                source.CopyTo(destination);
                         } break;
 
                     default: throw new Exception("StreamTypeが不正です");

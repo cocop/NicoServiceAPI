@@ -8,6 +8,9 @@
         public const string Login =
             "mail_tel={0}&password={1}";
 
+        public const string PostVideoComment =
+            "<chat thread=\"{0}\" vpos=\"{1}\" mail=\"{2}\" ticket=\"{3}\" user_id=\"{4}\" postkey=\"{5}\">{6}</chat>";
+
         public const string GetVideoComment =
             "<packet><thread thread=\"{0}\" version=\"20090904\"/><thread_leaves scores=\"1\" thread=\"{0}\">0-100:100,1000</thread_leaves></packet>";
 

@@ -160,6 +160,25 @@ namespace NicoServiceAPI.NicoVideo.Serial
             return result;
         }
 
+        internal Response ConvertResponse(PostComment.Packet packet)
+        {
+            var result = new Response();
+
+            if (packet.chat_result.status == "0")
+                result.Status = Status.OK;
+            else
+            {
+                switch (packet.chat_result.status)
+                {
+                    case "1": result.ErrorMessage = "同じコメントを投稿しようとしました"; break;
+                    default: break;
+                }
+                result.Status = Status.UnknownError;
+            }
+
+            return result;
+        }
+
         /********************************************/
 
         private Video.Comment[] ConvertComment(GetComment.Chat[] Serial)
