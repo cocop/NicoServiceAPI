@@ -51,8 +51,5 @@ namespace NicoServiceAPI.NicoVideo.User
 
         /// <summary>マイリスト動画</summary>
         public MylistItem[] MylistItem { get; set; }
-
-        /// <summary>マイリスト操作用トークン</summary>
-        internal string token { get; set; }
     }
 }

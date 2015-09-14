@@ -113,7 +113,7 @@ namespace NicoServiceAPI.NicoVideo.Serial
             };
         }
 
-        public Response ConvertMylistAddVideoResponse(MylistAddVideo.Contract Serial)
+        public Response ConvertResponse(MylistAddVideo.Contract Serial)
         {
             return new Response()
             {
