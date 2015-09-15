@@ -324,6 +324,39 @@ namespace NicoServiceAPI.NicoVideo
                 () => result);
         }
 
+        /// <summary>視聴履歴をダウンロードする</summary>
+        public ViewHistoryResponse DownloadViewHistory()
+        {
+            var streams = OpenViewHistoryDownloadStream();
+            return streams.Run(streams.UntreatedCount);
+        }
+
+        /// <summary>視聴履歴をダウンロードするストリームを取得する</summary>
+        public Connection.Streams<ViewHistoryResponse> OpenViewHistoryDownloadStream()
+        {
+            var serialize = new DataContractJsonSerializer(typeof(Serial.GetVideoViewHistory.Contract));
+            var streamDataList = new List<Connection.StreamData>();
+            ViewHistoryResponse result = null;
+
+            streamDataList.Add(new Connection.StreamData()
+            {
+                StreamType = StreamType.Read,
+                GetStream = (size) => context.Client.OpenDownloadStream(ApiUrls.GetVideoViewHistory),
+                SetReadData = (data) =>
+                {
+                    var serial = (Serial.GetVideoViewHistory.Contract)serialize.ReadObject(new MemoryStream(data));
+
+                    if (serial.token != null)
+                        token = serial.token;
+                    
+                    result = converter.ConvertViewHistoryResponse(serial);
+                },
+            });
+
+            return new Streams<ViewHistoryResponse>(
+                streamDataList.ToArray(),
+                () => result);
+        }
 
         Connection.StreamData[] GetToken()
         {

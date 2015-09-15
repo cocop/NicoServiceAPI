@@ -122,6 +122,25 @@ namespace NicoServiceAPI.NicoVideo.Serial
             };
         }
 
+        public Response ConvertResponse(PostComment.Packet packet)
+        {
+            var result = new Response();
+
+            if (packet.chat_result.status == "0")
+                result.Status = Status.OK;
+            else
+            {
+                switch (packet.chat_result.status)
+                {
+                    case "1": result.ErrorMessage = "同じコメントを投稿しようとしました"; break;
+                    default: break;
+                }
+                result.Status = Status.UnknownError;
+            }
+
+            return result;
+        }
+
         public User.MylistRemoveVideoResponse ConvertMylistRemoveVideoResponse(MylistRemoveVideo.Contract Serial)
         {
             return new User.MylistRemoveVideoResponse()
@@ -132,7 +151,7 @@ namespace NicoServiceAPI.NicoVideo.Serial
             };
         }
 
-        internal UserResponse ConvertUserResponse(GroupCollection[] Serial)
+        public UserResponse ConvertUserResponse(GroupCollection[] Serial)
         {
             var result = new UserResponse();
 
@@ -160,20 +179,26 @@ namespace NicoServiceAPI.NicoVideo.Serial
             return result;
         }
 
-        internal Response ConvertResponse(PostComment.Packet packet)
+        public User.ViewHistoryResponse ConvertViewHistoryResponse(GetVideoViewHistory.Contract Serial)
         {
-            var result = new Response();
+            var result = new User.ViewHistoryResponse();
 
-            if (packet.chat_result.status == "0")
-                result.Status = Status.OK;
-            else
+            if (result.History != null) return null;
+
+
+            result.Status = ConvertStatus(Serial.status, Serial.error);
+            result.ErrorMessage = (Serial.error == null) ? null : Serial.error.description;
+
+            result.History = new Video.VideoInfo[Serial.history.Length];
+            for (int i = 0; i < result.History.Length; i++)
             {
-                switch (packet.chat_result.status)
-                {
-                    case "1": result.ErrorMessage = "同じコメントを投稿しようとしました"; break;
-                    default: break;
-                }
-                result.Status = Status.UnknownError;
+
+                result.History[i] = new Video.VideoInfo();
+
+                result.History[i].ID = Serial.history[i].item_id;
+                result.History[i].Length = ConvertTimeSpan(Serial.history[i].length);
+                result.History[i].Thumbnail = NewPicture(result.History[i].Thumbnail, Serial.history[i].thumbnail_url);
+                result.History[i].Title = Serial.history[i].title;
             }
 
             return result;
@@ -258,6 +283,8 @@ namespace NicoServiceAPI.NicoVideo.Serial
 
         private Video.VideoInfo[] ConvertVideoInfo(Search.List[] Serial)
         {
+            if (Serial == null) return null;
+
             var result = new Video.VideoInfo[Serial.Length];
 
             for (int i = 0; i < result.Length; i++)
@@ -282,6 +309,8 @@ namespace NicoServiceAPI.NicoVideo.Serial
 
         private User.Mylist ConvertMylist(GetDeflist.Mylistitem[] MylistitemSerial, GroupCollection MylistInfoData, GroupCollection MylistUserInfoData)
         {
+            if (MylistitemSerial == null) return null;
+
             var result = (ic == null)
                 ? (MylistInfoData == null)
                 ? new User.Mylist("")
@@ -313,6 +342,8 @@ namespace NicoServiceAPI.NicoVideo.Serial
 
         private User.Mylist ConvertMylist(GetMylist.Contract Serial, string MylistID)
         {
+            if (Serial != null) return null;
+
             var result = (ic == null)
                 ? new User.Mylist(MylistID)
                 : ic.GetMylist(MylistID);
@@ -388,6 +419,8 @@ namespace NicoServiceAPI.NicoVideo.Serial
 
         private User.Mylist[] ConvertMylistGroup(GetMylistGroup.MylistGroup[] Serial)
         {
+            if (Serial != null) return null;
+
             var result = new User.Mylist[Serial.Length];
 
             for (int i = 0; i < result.Length; i++)

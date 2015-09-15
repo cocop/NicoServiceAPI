@@ -54,6 +54,8 @@
     <Compile Include="NicoVideo\Serial\GetMylist\Contract.cs" />
     <Compile Include="NicoVideo\Serial\GetMylist\List.cs" />
     <Compile Include="NicoVideo\Serial\GetMylist\ThumbnailStyle.cs" />
+    <Compile Include="NicoVideo\Serial\GetVideoViewHistory\Contract.cs" />
+    <Compile Include="NicoVideo\Serial\GetVideoViewHistory\History.cs" />
     <Compile Include="NicoVideo\Serial\MylistAddVideo\Contract.cs" />
     <Compile Include="NicoVideo\Serial\GetMylistGroup\Contract.cs" />
     <Compile Include="NicoVideo\Serial\GetMylistGroup\MylistGroup.cs" />
@@ -64,6 +66,7 @@
     <Compile Include="NicoVideo\User\MylistRemoveVideoResponse.cs" />
     <Compile Include="NicoVideo\User\MylistGroupResponse.cs" />
     <Compile Include="NicoVideo\UserPage.cs" />
+    <Compile Include="NicoVideo\User\ViewHistoryResponse.cs" />
     <Compile Include="NicoVideo\VideoPage.cs" />
     <Compile Include="NicoVideo\Video\Comment.cs" />
     <Compile Include="NicoVideo\Video\CommentResponse.cs" />
