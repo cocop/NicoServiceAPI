@@ -19,6 +19,7 @@
         public const string PostVideoComment = "http://flapi.nicovideo.jp/api/getpostkey/?yugi=&version_sub=2&device=1&block_no={0}&version=1&thread={1}";
 
         //タグ
+        public const string GetVideoTag = "http://www.nicovideo.jp/tag_edit/{0}/?res_type=json";
         public const string EditVideoTag = "http://www.nicovideo.jp/tag_edit/{0}/";
 
         //ユーザー

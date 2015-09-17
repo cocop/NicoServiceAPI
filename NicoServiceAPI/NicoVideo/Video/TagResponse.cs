@@ -8,7 +8,7 @@ namespace NicoServiceAPI.NicoVideo.Video
     /******************************************/
     /// <summary>タグ編集レスポンス</summary>
     /******************************************/
-    public class EditTagResponse : Response
+    public class TagResponse : Response
     {
         /// <summary>タグ</summary>
         public Tag[] Tags { get; set; }

@@ -290,9 +290,51 @@ namespace NicoServiceAPI.NicoVideo
                 () => result);
         }
 
+        /// <summary>タグを取得する</summary>
+        public TagResponse DownloadTags()
+        {
+            var streams = OpenTagsDownloadStream();
+            return streams.Run(streams.UntreatedCount);
+        }
+
+        /// <summary>タグを取得するストリームを取得する</summary>
+        public Streams<TagResponse> OpenTagsDownloadStream()
+        {
+            var streamDataList = new List<StreamData>();
+            TagResponse result = null;
+
+            streamDataList.Add(
+                new StreamData()
+                {
+                    StreamType = StreamType.Read,
+                    GetStream = (size) =>
+                    {
+                        try
+                        {
+                            return context.Client.OpenDownloadStream(string.Format(ApiUrls.GetVideoTag, target.ID));
+                        }
+                        catch (WebException e)
+                        {
+                            throw new WebException("タグ取得APIにアクセス出来ませんでした", e);
+                        }
+                    },
+                    SetReadData = (data) =>
+                    {
+                        var serialize = new DataContractJsonSerializer(typeof(Serial.EditTag.Contract));
+                        var serial = (Serial.EditTag.Contract)serialize.ReadObject(new MemoryStream(data));
+
+                        result = converter.ConvertTagResponse(serial);
+                    }
+                });
+
+            return new Streams<TagResponse>(
+                streamDataList.ToArray(),
+                () => result);
+        }
+
         /// <summary>タグを追加する</summary>
         /// <param name="AddItem">追加するタグ</param>
-        public Response AddTag(Tag AddItem)
+        public TagResponse AddTag(Tag AddItem)
         {
             var streams = OpenEditTagStream(AddItem, PostTexts.AddVideoTag);
             return streams.Run(streams.UntreatedCount);
@@ -300,14 +342,14 @@ namespace NicoServiceAPI.NicoVideo
 
         /// <summary>タグを追加するストリームを取得する</summary>
         /// <param name="AddItem">追加するタグ</param>
-        public Streams<Response> OpenAddTagStream(Tag AddItem)
+        public Streams<TagResponse> OpenAddTagStream(Tag AddItem)
         {
             return OpenEditTagStream(AddItem, PostTexts.AddVideoTag);
         }
 
         /// <summary>タグを削除する</summary>
         /// <param name="RemoveItem">削除するタグ</param>
-        public Response RemoveTag(Tag RemoveItem)
+        public TagResponse RemoveTag(Tag RemoveItem)
         {
             var streams = OpenEditTagStream(RemoveItem, PostTexts.RemoveVideoTag);
             return streams.Run(streams.UntreatedCount);
@@ -315,7 +357,7 @@ namespace NicoServiceAPI.NicoVideo
 
         /// <summary>タグを削除するストリームを取得する</summary>
         /// <param name="RemoveItem">削除するタグ</param>
-        public Streams<Response> OpenRemoveTagStream(Tag RemoveItem)
+        public Streams<TagResponse> OpenRemoveTagStream(Tag RemoveItem)
         {
             return OpenEditTagStream(RemoveItem, PostTexts.RemoveVideoTag);
         }
@@ -344,11 +386,11 @@ namespace NicoServiceAPI.NicoVideo
         }
 
 
-        private Streams<Response> OpenEditTagStream(Tag Tag, string PostText)
+        private Streams<TagResponse> OpenEditTagStream(Tag Tag, string PostText)
         {
             var videoPageStreamData = OpenVideoPageStreamData();
             var streamDataList = new List<StreamData>();
-            EditTagResponse result = null;
+            TagResponse result = null;
 
             if (videoPageStreamData != null)
                 streamDataList.Add(videoPageStreamData);
@@ -376,13 +418,13 @@ namespace NicoServiceAPI.NicoVideo
             uploadStreamData[1].SetReadData = (data) =>
             {
                 var serialize = new DataContractJsonSerializer(typeof(Serial.EditTag.Contract));
-                result = converter.ConvertEditTagResponse(
+                result = converter.ConvertTagResponse(
                     (Serial.EditTag.Contract)serialize.ReadObject(new MemoryStream(data)));
                 target.Tags = result.Tags;
             };
             streamDataList.AddRange(uploadStreamData);
 
-            return new Streams<Response>(
+            return new Streams<TagResponse>(
                 streamDataList.ToArray(),
                 () => result);
         }

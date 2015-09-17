@@ -84,9 +84,9 @@ namespace NicoServiceAPI.NicoVideo.Serial
             };
         }
 
-        public Video.EditTagResponse ConvertEditTagResponse(EditTag.Contract Serial)
+        public Video.TagResponse ConvertTagResponse(EditTag.Contract Serial)
         {
-            var result = new Video.EditTagResponse();
+            var result = new Video.TagResponse();
 
             result.ErrorMessage = (Serial.error == null) ? null : Serial.error.description;
             result.Status = ConvertStatus(Serial.status, Serial.error);

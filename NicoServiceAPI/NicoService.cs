@@ -29,7 +29,7 @@ namespace NicoServiceAPI
         /// <param name="Password">パスワード</param>
         public bool Login(string Mail, string Password)
         {
-            context.Client.Upload(                
+            context.Client.Upload(
                 ApiUrls.Login,
                 Encoding.UTF8.GetBytes(
                     String.Format(PostTexts.Login, Mail, Password)),

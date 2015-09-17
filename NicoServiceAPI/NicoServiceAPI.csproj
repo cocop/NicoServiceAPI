@@ -54,7 +54,7 @@
     <Compile Include="NicoService.cs" />
     <Compile Include="NicoVideo\MylistPage.cs" />
     <Compile Include="NicoVideo\Serial\EditTag\Tags.cs" />
-    <Compile Include="NicoVideo\Video\EditTagResponse.cs" />
+    <Compile Include="NicoVideo\Video\TagResponse.cs" />
     <Compile Include="NicoVideo\Serial\EditTag\Contract.cs" />
     <Compile Include="NicoVideo\Serial\GetMylist\Contract.cs" />
     <Compile Include="NicoVideo\Serial\GetMylist\List.cs" />
