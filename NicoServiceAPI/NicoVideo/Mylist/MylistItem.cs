@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NicoServiceAPI.NicoVideo.User
+namespace NicoServiceAPI.NicoVideo.Mylist
 {
     /******************************************/
     /// <summary>マイリストアイテム</summary>

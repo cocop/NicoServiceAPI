@@ -23,12 +23,12 @@ namespace NicoServiceAPI.Connection
         /// <summary>データのアップロード</summary>
         /// <param name="Url">アップロードURL</param>
         /// <param name="Data">アップロードデータ</param>
-        public byte[] Upload(string Url, byte[] Data)
+        public byte[] Upload(string Url, byte[] Data, ContentType ContentType = ContentType.None)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url);
 
             request.Method = "POST";
-            request.ContentType = "application/x-www-form-urlencoded";
+            request.ContentType = ContentType.ToKey();
             request.ContentLength = Data.Length;
             request.CookieContainer = CookieContainer;
 
@@ -83,12 +83,12 @@ namespace NicoServiceAPI.Connection
 
         /// <summary>アップロードストリームを開く</summary>
         /// <param name="Url">アップロードURL</param>
-        public Streams OpenUploadStream(string Url)
+        public Streams OpenUploadStream(string Url, ContentType ContentType = ContentType.None)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url);
 
             request.Method = "POST";
-            request.ContentType = "application/x-www-form-urlencoded";
+            request.ContentType = ContentType.ToKey();
             request.CookieContainer = CookieContainer;
 
             return new Streams(

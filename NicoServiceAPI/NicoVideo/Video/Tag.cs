@@ -9,9 +9,12 @@
         public string Name { set; get; }
 
         /// <summary>カテゴリ</summary>
-        public bool Category { set; get; }
+        public bool IsCategory { set; get; }
+
+        /// <summary>大百科</summary>
+        public bool IsNicopedia { set; get; }
 
         /// <summary>タグロック</summary>
-        public bool Lock { set; get; }
+        public bool IsLock { set; get; }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace NicoServiceAPI.NicoVideo.User
+﻿namespace NicoServiceAPI.NicoVideo.Mylist
 {
     /******************************************/
     /// <summary>マイリストからの動画削除レスポンス</summary>

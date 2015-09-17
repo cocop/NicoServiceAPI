@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NicoServiceAPI.NicoVideo
+namespace NicoServiceAPI.NicoVideo.User
 {
     /******************************************/
     /// <summary>ユーザー情報レスポンス</summary>
@@ -11,6 +11,6 @@ namespace NicoServiceAPI.NicoVideo
     public class UserResponse : Response
     {
         /// <summary>ユーザー情報</summary>
-        public User.User User;
+        public User User;
     }
 }

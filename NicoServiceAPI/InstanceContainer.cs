@@ -1,10 +1,8 @@
-﻿using NicoServiceAPI.NicoVideo.User;
+﻿using NicoServiceAPI.NicoVideo.Mylist;
+using NicoServiceAPI.NicoVideo.User;
 using NicoServiceAPI.NicoVideo.Video;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace NicoServiceAPI
 {

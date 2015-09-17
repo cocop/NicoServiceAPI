@@ -39,7 +39,7 @@ namespace NicoServiceAPI.NicoVideo.Serial.GetVideoViewHistory
         [DataMember]
         public int watch_count;
 
-        /// <summary>調べ中/*!*/</summary>
+        /// <summary>詳細調べ中/*!*/</summary>
         [DataMember]
         public string watch_date;
     }

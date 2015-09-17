@@ -10,6 +10,6 @@ namespace NicoServiceAPI.NicoVideo.User
     /******************************************/
     public class MylistGroupResponse : Response
     {
-        public Mylist[] MylistGroup { get; set; }
+        public Mylist.Mylist[] MylistGroup { get; set; }
     }
 }

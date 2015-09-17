@@ -1,4 +1,5 @@
-﻿using NicoServiceAPI.NicoVideo;
+﻿using NicoServiceAPI.Connection;
+using NicoServiceAPI.NicoVideo;
 using System;
 using System.Net;
 using System.Text;
@@ -19,7 +20,7 @@ namespace NicoServiceAPI
         /// <summary>初期化</summary>
         public NicoService()
         {
-            context.Client = new Connection.Client();
+            context.Client = new Client();
         }
 
 
@@ -28,10 +29,11 @@ namespace NicoServiceAPI
         /// <param name="Password">パスワード</param>
         public bool Login(string Mail, string Password)
         {
-            context.Client.Upload(
+            context.Client.Upload(                
                 ApiUrls.Login,
                 Encoding.UTF8.GetBytes(
-                    String.Format(PostTexts.Login, Mail, Password)));
+                    String.Format(PostTexts.Login, Mail, Password)),
+                ContentType.Form);
 
             foreach (Cookie cookie in context.Client.CookieContainer.GetCookies(new Uri(ApiUrls.Host)))
                 if (cookie.Name == "user_session")

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using NicoServiceAPI.Connection;
+using System.IO;
 
 namespace NicoServiceAPI.NicoVideo
 {
@@ -17,7 +18,7 @@ namespace NicoServiceAPI.NicoVideo
         public byte[] Data { set; get; }
 
 
-        Connection.Client client;
+        Client client;
 
         /******************************************/
         /******************************************/
@@ -25,7 +26,7 @@ namespace NicoServiceAPI.NicoVideo
         /// <summary>自動生成される画像データ</summary>
         /// <param name="Url">画像データのURL</param>
         /// <param name="Client">クッキーを持っているClient</param>
-        internal Picture(string Url, Connection.Client Client)
+        internal Picture(string Url, Client Client)
         {
             IsDownloaded = false;
             this.Url = Url;

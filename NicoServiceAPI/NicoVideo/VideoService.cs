@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NicoServiceAPI.Connection;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Json;
@@ -12,8 +13,6 @@ namespace NicoServiceAPI.NicoVideo
     {
         Context context;
         Serial.Converter converter;
-        VideoPage videoPage;
-        UserPage userPage;
 
         /******************************************/
         /******************************************/
@@ -27,20 +26,35 @@ namespace NicoServiceAPI.NicoVideo
         }
 
         /// <summary>動画へアクセスするページを取得する</summary>
-        public VideoPage GetVideoPage()
+        /// <param name="Target">ターゲット動画</param>
+        public VideoPage GetVideoPage(Video.VideoInfo Target)
         {
-            if (videoPage == null)
-                videoPage = new VideoPage(context);
-            return videoPage;
+            if (Target.videoPage != null)
+                return Target.videoPage;
+            else
+                return Target.videoPage = new VideoPage(Target, context);
         }
 
         /// <summary>ユーザーへアクセスするページを取得する</summary>
-        public UserPage GetUserPage()
+        /// <param name="Target">ターゲットユーザー</param>
+        public UserPage GetUserPage(User.User Target)
         {
-            if (userPage == null)
-                userPage = new UserPage(context);
-            return userPage;
+            if (Target.userPage != null)
+                return Target.userPage;
+            else
+                return Target.userPage = new UserPage(Target, context);
         }
+
+        /// <summary>ユーザーへアクセスするページを取得する</summary>
+        /// <param name="Target">ターゲットユーザー</param>
+        public MylistPage GetMylistPage(Mylist.Mylist Target)
+        {
+            if (Target.mylistPage != null)
+                return Target.mylistPage;
+            else
+                return Target.mylistPage = new MylistPage(Target, this, context);
+        }
+
 
         /// <summary>動画を検索する</summary>
         /// <param name="Keyword">検索キーワード</param>
@@ -62,20 +76,20 @@ namespace NicoServiceAPI.NicoVideo
         /// <param name="SearchPage">検索ページの指定、1～nの間の数値を指定する</param>
         /// <param name="SearchType">検索方法を指定する</param>
         /// <param name="SearchOption">検索オプションを指定する</param>
-        public Connection.Streams<Video.VideoInfoResponse> OpenSearchStream(
+        public Streams<Video.VideoInfoResponse> OpenSearchStream(
             string          Keyword,
             int             SearchPage,
             SearchType      SearchType,
             SearchOption    SearchOption)
         {
             var serialize = new DataContractJsonSerializer(typeof(Serial.Search.Contract));
-            var streamDataList = new List<Connection.StreamData>();
+            var streamDataList = new List<StreamData>();
             Video.VideoInfoResponse lastData = null;
 
             streamDataList.Add(
-                new Connection.StreamData()
+                new StreamData()
                 {
-                    StreamType = Connection.StreamType.Read,
+                    StreamType = StreamType.Read,
                     GetStream = (size) =>
                     {
                         return context.Client.OpenDownloadStream(
@@ -93,7 +107,7 @@ namespace NicoServiceAPI.NicoVideo
                     }
                 });
 
-            return new Connection.Streams<Video.VideoInfoResponse>(
+            return new Streams<Video.VideoInfoResponse>(
                 streamDataList.ToArray(),
                 () => lastData);
         }

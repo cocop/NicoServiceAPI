@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace NicoServiceAPI.NicoVideo.User
+namespace NicoServiceAPI.NicoVideo.Mylist
 {
-    /// <summary></summary>
+    /******************************************/
+    /// <summary>マイリスト</summary>
+    /******************************************/
     public class Mylist
     {
         /// <summary>内部生成時、使用される。</summary>
@@ -23,7 +22,7 @@ namespace NicoServiceAPI.NicoVideo.User
         /******************************************/
         
         /// <summary>マイリストユーザー</summary>
-        public User User { get; set; }
+        public User.User User { get; set; }
 
         /// <summary>マイリストID、空文字である場合はとりあえずマイリスト</summary>
         public string ID { get; set; }
@@ -51,5 +50,8 @@ namespace NicoServiceAPI.NicoVideo.User
 
         /// <summary>マイリスト動画</summary>
         public MylistItem[] MylistItem { get; set; }
+
+        /// <summary>マイリストページ</summary>
+        internal MylistPage mylistPage { get; set; }
     }
 }

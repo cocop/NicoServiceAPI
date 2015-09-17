@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-//res.nimg.jp/js/my3.js参照
-//res.nimg.jp/js/nicoapi.js
-//jQuery.ajaxで検索
-
 namespace NicoServiceAPI.NicoVideo.User
 {
+    /******************************************/
     /// <summary>ユーザー情報</summary>
+    /******************************************/
     public class User
     {
         /// <summary>IDを指定して初期化</summary>
@@ -48,5 +46,8 @@ namespace NicoServiceAPI.NicoVideo.User
 
         /// <summary>プレミアムかどうか</summary>
         public bool IsPremium { get; set; }
+
+        /// <summary>ユーザーページ</summary>
+        internal UserPage userPage { get; set; }
     }
 }

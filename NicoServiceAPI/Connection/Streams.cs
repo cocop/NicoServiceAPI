@@ -101,7 +101,7 @@ namespace NicoServiceAPI.Connection
             {
                 switch (NowStreamType)
                 {
-                    case NicoServiceAPI.Connection.StreamType.Read:
+                    case StreamType.Read:
                         {
                             using (var source = GetStream())
                             using (var destination = new MemoryStream())
@@ -111,7 +111,7 @@ namespace NicoServiceAPI.Connection
                             }
                         } break;
 
-                    case NicoServiceAPI.Connection.StreamType.Write:
+                    case StreamType.Write:
                         {
                             var data = GetWriteData();
 

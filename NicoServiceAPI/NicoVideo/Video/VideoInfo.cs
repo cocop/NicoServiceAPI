@@ -85,7 +85,7 @@ namespace NicoServiceAPI.NicoVideo.Video
         /// <summary>外部再生の可否</summary>
         public bool IsExternalPlay { set; get; }
 
-        /// <summary>内部キャッシュ</summary>
-        internal NameValueCollection cache { set; get; }
+        /// <summary>動画ページ</summary>
+        internal VideoPage videoPage { get; set; }
     }
 }

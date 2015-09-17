@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiUrls.cs" />
+    <Compile Include="Connection\ContentType.cs" />
     <Compile Include="Context.cs" />
     <Compile Include="Connection\Client.cs" />
     <Compile Include="Connection\StreamData.cs" />
@@ -51,6 +52,10 @@
     <Compile Include="Common.cs" />
     <Compile Include="InstanceContainer.cs" />
     <Compile Include="NicoService.cs" />
+    <Compile Include="NicoVideo\MylistPage.cs" />
+    <Compile Include="NicoVideo\Serial\EditTag\Tags.cs" />
+    <Compile Include="NicoVideo\Video\EditTagResponse.cs" />
+    <Compile Include="NicoVideo\Serial\EditTag\Contract.cs" />
     <Compile Include="NicoVideo\Serial\GetMylist\Contract.cs" />
     <Compile Include="NicoVideo\Serial\GetMylist\List.cs" />
     <Compile Include="NicoVideo\Serial\GetMylist\ThumbnailStyle.cs" />
@@ -62,16 +67,16 @@
     <Compile Include="NicoVideo\Serial\MylistRemoveVideo\Contract.cs" />
     <Compile Include="NicoVideo\Serial\PostComment\ChatResult.cs" />
     <Compile Include="NicoVideo\Serial\PostComment\Packet.cs" />
-    <Compile Include="NicoVideo\UserResponse.cs" />
-    <Compile Include="NicoVideo\User\MylistRemoveVideoResponse.cs" />
+    <Compile Include="NicoVideo\User\UserResponse.cs" />
+    <Compile Include="NicoVideo\Mylist\MylistRemoveVideoResponse.cs" />
     <Compile Include="NicoVideo\User\MylistGroupResponse.cs" />
     <Compile Include="NicoVideo\UserPage.cs" />
     <Compile Include="NicoVideo\User\ViewHistoryResponse.cs" />
     <Compile Include="NicoVideo\VideoPage.cs" />
     <Compile Include="NicoVideo\Video\Comment.cs" />
     <Compile Include="NicoVideo\Video\CommentResponse.cs" />
-    <Compile Include="NicoVideo\User\Mylist.cs" />
-    <Compile Include="NicoVideo\User\MylistItem.cs" />
+    <Compile Include="NicoVideo\Mylist\Mylist.cs" />
+    <Compile Include="NicoVideo\Mylist\MylistItem.cs" />
     <Compile Include="NicoVideo\PostTimeFilter.cs" />
     <Compile Include="NicoVideo\Response.cs" />
     <Compile Include="NicoVideo\SearchOption.cs" />
@@ -90,7 +95,7 @@
     <Compile Include="NicoVideo\Serial\GetDeflist\ItemData.cs" />
     <Compile Include="NicoVideo\Serial\GetDeflist\Mylistitem.cs" />
     <Compile Include="NicoVideo\Serial\GetComment\Leaf.cs" />
-    <Compile Include="NicoVideo\User\MylistResponse.cs" />
+    <Compile Include="NicoVideo\Mylist\MylistResponse.cs" />
     <Compile Include="NicoVideo\Serial\Search\Contract.cs" />
     <Compile Include="NicoVideo\Serial\Search\List.cs" />
     <Compile Include="NicoVideo\Serial\Search\Nicopedia.cs" />
