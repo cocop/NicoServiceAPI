@@ -17,7 +17,7 @@ namespace NicoServiceAPI.NicoVideo
         public PostTimeFilter PostTimeFilter { get; set; }
 
         /// <summary>動画時間</summary>
-        public PlayTimeFilter VideoTimeFilter { get; set; }
+        public VideoTimeFilter VideoTimeFilter { get; set; }
 
         /******************************************/
         /******************************************/
@@ -32,7 +32,7 @@ namespace NicoServiceAPI.NicoVideo
             SortOrder       SortOrder,
             SortTarget      SortTarget,
             PostTimeFilter  PostTimeFilter,
-            PlayTimeFilter VideoTimeFilter)
+            VideoTimeFilter VideoTimeFilter)
         {
             
             this.SortOrder = SortOrder;
@@ -120,13 +120,13 @@ namespace NicoServiceAPI.NicoVideo
             #region 再生時間の指定
             switch (VideoTimeFilter)
             {
-                case PlayTimeFilter.None:
+                case VideoTimeFilter.None:
                     Keys[videoTime] = "";
                     break;
-                case PlayTimeFilter.Short:
+                case VideoTimeFilter.Short:
                     Keys[videoTime] = "1";
                     break;
-                case PlayTimeFilter.Long:
+                case VideoTimeFilter.Long:
                     Keys[videoTime] = "2";
                     break;
                 default:

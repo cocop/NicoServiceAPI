@@ -2,9 +2,9 @@
 namespace NicoServiceAPI.NicoVideo
 {
     /******************************************/
-    /// <summary>再生時間フィルタ</summary>
+    /// <summary>投稿時間フィルタ</summary>
     /******************************************/
-    public enum PlayTimeFilter
+    public enum VideoTimeFilter
     {
         /// <summary>指定なし</summary>
         None,
