@@ -108,7 +108,7 @@
     <Compile Include="NicoVideo\Video\VideoInfo.cs" />
     <Compile Include="NicoVideo\Video\VideoInfoResponse.cs" />
     <Compile Include="NicoVideo\VideoService.cs" />
-    <Compile Include="NicoVideo\VideoTimeFilter.cs" />
+    <Compile Include="NicoVideo\PlayTimeFilter.cs" />
     <Compile Include="PostTexts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="HtmlTextRegex.cs" />
