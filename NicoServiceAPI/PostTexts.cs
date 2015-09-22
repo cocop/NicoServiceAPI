@@ -8,11 +8,17 @@
         public const string Login =
             "mail_tel={0}&password={1}";
 
+
+        //コメント
+
         public const string GetVideoComment =
             "thread?version=20090904&thread={0}&res_from=1";
 
         public const string PostVideoComment =
             "<chat thread=\"{0}\" vpos=\"{1}\" mail=\"{2}\" ticket=\"{3}\" user_id=\"{4}\" postkey=\"{5}\">{6}</chat>";
+
+
+        //タグ
 
         public const string AddVideoTag =
             "res_type=json&cmd=add&tag={0}&id=undefined&token={1}&watch_auth_key={2}&owner_lock={3}";
@@ -20,7 +26,19 @@
         public const string RemoveVideoTag =
             "res_type=json&cmd=remove&tag={0}&id=undefined&token={1}&watch_auth_key={2}&owner_lock={3}";
 
-        //ここからマイリスト
+
+        //マイリストグループ
+
+        public const string AddMylist =
+            "name={0}&description={1}&public={2}&default_sort=1&token={3}";
+
+        public const string UpdateMylist =
+            "group_id={0}&name={1}&description={2}&public={3}&default_sort=1&token={4}";
+
+        public const string RemoveMylist =
+            "group_id={0}&token={1}";
+
+        //マイリスト
 
         public const string ArrayMylistItem = 
             "id_list[0][]={0}&";
@@ -49,7 +67,5 @@
 
         public const string MylistCopyVideo =
             "group_id={0}&target_group_id={1}&{2}token={3}";
-
-        //ここまでマイリスト
     }
 }

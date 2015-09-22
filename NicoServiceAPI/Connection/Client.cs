@@ -23,6 +23,7 @@ namespace NicoServiceAPI.Connection
         /// <summary>データのアップロード</summary>
         /// <param name="Url">アップロードURL</param>
         /// <param name="Data">アップロードデータ</param>
+        /// <param name="ContentType">ポストするコンテンツタイプ</param>
         public byte[] Upload(string Url, byte[] Data, ContentType ContentType = ContentType.None)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url);
@@ -83,6 +84,7 @@ namespace NicoServiceAPI.Connection
 
         /// <summary>アップロードストリームを開く</summary>
         /// <param name="Url">アップロードURL</param>
+        /// <param name="ContentType">ポストするコンテンツタイプ</param>
         public Streams OpenUploadStream(string Url, ContentType ContentType = ContentType.None)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url);

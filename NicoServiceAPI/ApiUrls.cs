@@ -25,6 +25,11 @@
         //ユーザー
         public const string GetVideoUserHtml = "http://www.nicovideo.jp/user/{0}";
 
+        //マイリストグループ
+        public const string AddMylist = "http://www.nicovideo.jp/api/mylistgroup/add";
+        public const string UpdateMylist = "http://www.nicovideo.jp/api/mylistgroup/update";
+        public const string RemoveMylist = "http://www.nicovideo.jp/api/mylistgroup/delete";
+
         //マイリスト
         public const string GetMylist = "http://www.nicovideo.jp/my/mylist";
         public const string GetMylistGroup = "http://www.nicovideo.jp/api/mylistgroup/list";

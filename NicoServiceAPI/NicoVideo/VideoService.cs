@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Json;
+using System.Text;
 
 namespace NicoServiceAPI.NicoVideo
 {
@@ -14,6 +15,7 @@ namespace NicoServiceAPI.NicoVideo
         Context context;
         Serial.Converter converter;
 
+        internal string token;
         /******************************************/
         /******************************************/
 
@@ -32,7 +34,7 @@ namespace NicoServiceAPI.NicoVideo
             if (Target.videoPage != null)
                 return Target.videoPage;
             else
-                return Target.videoPage = new VideoPage(Target, context);
+                return Target.videoPage = new VideoPage(Target, this, context);
         }
 
         /// <summary>ユーザーへアクセスするページを取得する</summary>
@@ -42,7 +44,7 @@ namespace NicoServiceAPI.NicoVideo
             if (Target.userPage != null)
                 return Target.userPage;
             else
-                return Target.userPage = new UserPage(Target, context);
+                return Target.userPage = new UserPage(Target, this, context);
         }
 
         /// <summary>ユーザーへアクセスするページを取得する</summary>
@@ -110,6 +112,27 @@ namespace NicoServiceAPI.NicoVideo
             return new Streams<Video.VideoInfoResponse>(
                 streamDataList.ToArray(),
                 () => lastData);
+        }
+
+
+        /// <summary>トークンを取得する</summary>
+        internal StreamData[] GetToken()
+        {
+            return new StreamData[]
+            {
+                new StreamData()
+                {
+                    StreamType = StreamType.Read,
+                    GetStream = (size) => context.Client.OpenDownloadStream(ApiUrls.GetMylist),
+                    SetReadData = (data) =>
+                    {
+                        token = HtmlTextRegex.
+                            VideoMylistToken.
+                            Match(Encoding.UTF8.GetString(data)).
+                            Groups["value"].Value;
+                    },
+                },
+            };
         }
     }
 }

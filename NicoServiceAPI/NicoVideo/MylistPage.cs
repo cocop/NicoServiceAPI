@@ -12,22 +12,20 @@ namespace NicoServiceAPI.NicoVideo
     public class MylistPage
     {
         Mylist.Mylist target;
+        VideoService host;
         Context context;
         Serial.Converter converter;
 
-        VideoService pageFactory;
-        string token = "";
-
         /// <summary>内部生成時、使用される</summary>
         /// <param name="Target">ターゲットマイリスト</param>
-        /// <param name="PageFactory">ページを取得できるクラス</param>
+        /// <param name="Host">ページを取得できるクラス</param>
         /// <param name="Context">コンテキスト</param>
-        internal MylistPage(Mylist.Mylist Target, VideoService PageFactory, Context Context)
+        internal MylistPage(Mylist.Mylist Target, VideoService Host, Context Context)
         {
             target = Target;
             context = Context;
             converter = new Serial.Converter(context);
-            pageFactory = PageFactory;
+            host = Host;
         }
 
         /// <summary>マイリストを取得する</summary>
@@ -122,8 +120,7 @@ namespace NicoServiceAPI.NicoVideo
                 () => result);
         }
 
-        /// <summary>指定したマイリストへ動画を追加する</summary>
-        /// <param name="Target">指定するマイリスト</param>
+        /// <summary>マイリストへ動画を追加する</summary>
         /// <param name="AddItem">追加する動画</param>
         /// <param name="IsGetToken">トークンを取得するかどうか</param>
         public Response MylistAddVideo(Mylist.MylistItem AddItem, bool IsGetToken = true)
@@ -132,8 +129,7 @@ namespace NicoServiceAPI.NicoVideo
             return streams.Run(streams.UntreatedCount);
         }
 
-        /// <summary>指定したマイリストへ動画を追加するストリームを取得する</summary>
-        /// <param name="Target">指定するマイリスト</param>
+        /// <summary>マイリストへ動画を追加するストリームを取得する</summary>
         /// <param name="AddItem">追加する動画</param>
         /// <param name="IsGetToken">トークンを取得するかどうか</param>
         public Streams<Response> OpenMylistAddVideoStream(Mylist.MylistItem AddItem, bool IsGetToken = true)
@@ -143,7 +139,7 @@ namespace NicoServiceAPI.NicoVideo
             Response result = null;
 
             if (IsGetToken)
-                streamDataList.AddRange(GetToken());
+                streamDataList.AddRange(host.GetToken());
 
             if (target.ID == "")//とりあえずマイリスト
             {
@@ -154,7 +150,7 @@ namespace NicoServiceAPI.NicoVideo
                         PostTexts.DeflistAddVideo,
                         AddItem.VideoInfo.ID,
                         AddItem.Description,
-                        token));
+                        host.token));
                 };
             }
             else
@@ -168,7 +164,7 @@ namespace NicoServiceAPI.NicoVideo
                         AddItem.VideoInfo.ID,
                         AddItem.Description,
                         "",
-                        token));
+                        host.token));
                 };
             }
 
@@ -185,8 +181,7 @@ namespace NicoServiceAPI.NicoVideo
                 () => result);
         }
 
-        /// <summary>指定したマイリストから動画を削除する</summary>
-        /// <param name="Target">指定するマイリスト</param>
+        /// <summary>マイリストから動画を削除する</summary>
         /// <param name="RemoveItem">削除する動画</param>
         /// <param name="IsGetToken">トークンを取得するかどうか</param>
         public Mylist.MylistRemoveVideoResponse MylistRemoveVideo(Video.VideoInfo RemoveItem, bool IsGetToken = true)
@@ -195,8 +190,7 @@ namespace NicoServiceAPI.NicoVideo
             return streams.Run(streams.UntreatedCount);
         }
 
-        /// <summary>指定したマイリストから動画を削除するストリームを取得する</summary>
-        /// <param name="Target">指定するマイリスト</param>
+        /// <summary>マイリストから動画を削除するストリームを取得する</summary>
         /// <param name="RemoveItem">削除する動画</param>
         /// <param name="IsGetToken">トークンを取得するかどうか</param>
         public Streams<Mylist.MylistRemoveVideoResponse> OpenMylistRemoveVideStream(Video.VideoInfo RemoveItem, bool IsGetToken = true)
@@ -205,10 +199,10 @@ namespace NicoServiceAPI.NicoVideo
             StreamData[] uploadStreamDatas = null;
             Mylist.MylistRemoveVideoResponse result = null;
             string threadID = "";
-            var getThreadID = pageFactory.GetVideoPage(RemoveItem).OpenThreadIDStreamData((data) => threadID = data);
+            var getThreadID = host.GetVideoPage(RemoveItem).OpenThreadIDStreamData((data) => threadID = data);
 
             if (IsGetToken)
-                streamDataList.AddRange(GetToken());
+                streamDataList.AddRange(host.GetToken());
 
             if (getThreadID != null)
                 streamDataList.Add(getThreadID);
@@ -221,7 +215,7 @@ namespace NicoServiceAPI.NicoVideo
                     return Encoding.UTF8.GetBytes(string.Format(
                         PostTexts.DeflistRemoveVideo,
                         string.Format(PostTexts.ArrayMylistItem, threadID),
-                        token));
+                        host.token));
                 };
             }
             else
@@ -233,7 +227,7 @@ namespace NicoServiceAPI.NicoVideo
                         PostTexts.MylistRemoveVideo,
                         target.ID,
                         string.Format(PostTexts.ArrayMylistItem, threadID),
-                        token));
+                        host.token));
                 };
             }
 
@@ -248,26 +242,6 @@ namespace NicoServiceAPI.NicoVideo
             return new Streams<Mylist.MylistRemoveVideoResponse>(
                 streamDataList.ToArray(),
                 () => result);
-        }
-
-
-        StreamData[] GetToken()
-        {
-            return new StreamData[]
-            {
-                new StreamData()
-                {
-                    StreamType = StreamType.Read,
-                    GetStream = (size) => context.Client.OpenDownloadStream(ApiUrls.Host + "my/mylist"),
-                    SetReadData = (data) =>
-                    {
-                        token = HtmlTextRegex.
-                            VideoMylistToken.
-                            Match(Encoding.UTF8.GetString(data)).
-                            Groups["value"].Value;
-                    },
-                },
-            };
         }
     }
 }

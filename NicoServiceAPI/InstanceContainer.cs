@@ -15,16 +15,22 @@ namespace NicoServiceAPI
         Dictionary<string, Mylist> mylistTable = new Dictionary<string, Mylist>();
         Dictionary<string, User> userTable = new Dictionary<string, User>();
 
+        /// <summary>動画情報を取得する</summary>
+        /// <param name="ID">動画ID</param>
         public VideoInfo GetVideoInfo(string ID)
         {
             return GetInstance(ID, videoInfoTable, (id) => new VideoInfo(id));
         }
 
+        /// <summary>マイリストを取得する</summary>
+        /// <param name="ID">マイリストID</param>
         public Mylist GetMylist(string ID)
         {
             return GetInstance(ID, mylistTable, (id) => new Mylist(id));
         }
 
+        /// <summary>ユーザー情報を取得する</summary>
+        /// <param name="ID">ユーザーID</param>
         public User GetUser(string ID)
         {
             return GetInstance(ID, userTable, (id) => new User(id));

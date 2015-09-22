@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NicoServiceAPI.Connection;
+using System;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace NicoServiceAPI
@@ -6,7 +8,7 @@ namespace NicoServiceAPI
     /******************************************/
     /// <summary>汎用処理</summary>
     /******************************************/
-    public static class Common
+    internal static class Common
     {
         /// <summary>Unicodeエスケープシーケンスをデコードする</summary>
         public static string UnicodeDecode(string Text)

@@ -144,6 +144,20 @@ namespace NicoServiceAPI.NicoVideo.Serial
             };
         }
 
+        public User.AddMylistResponse ConvertAddMylist(Serial.AddMylist.Contract Serial)
+        {
+            var result = new User.AddMylistResponse();
+
+            result.AddedMylist = (ic == null)
+                    ? new Mylist.Mylist(Serial.id)
+                    : ic.GetMylist(Serial.id);
+
+            result.ErrorMessage = (Serial.error == null) ? null : Serial.error.description;
+            result.Status = ConvertStatus(Serial.status, Serial.error);
+
+            return result;
+        }
+
         public User.UserResponse ConvertUserResponse(GroupCollection[] Serial)
         {
             var result = new User.UserResponse();
@@ -206,6 +220,24 @@ namespace NicoServiceAPI.NicoVideo.Serial
             };
         }
 
+        public Response ConvertResponse(UpdateMylist.Contract Serial)
+        {
+            return new Response()
+            {
+                ErrorMessage = (Serial.error == null) ? null : Serial.error.description,
+                Status = ConvertStatus(Serial.status, Serial.error),
+            };
+        }
+
+        public Response ConvertResponse(RemoveMylist.Contract Serial)
+        {
+            return new Response()
+            {
+                ErrorMessage = (Serial.error == null) ? null : Serial.error.description,
+                Status = ConvertStatus(Serial.status, Serial.error),
+            };
+        }
+
         public Response ConvertResponse(PostComment.Packet packet)
         {
             var result = new Response();
@@ -224,6 +256,7 @@ namespace NicoServiceAPI.NicoVideo.Serial
 
             return result;
         }
+
 
         /********************************************/
 

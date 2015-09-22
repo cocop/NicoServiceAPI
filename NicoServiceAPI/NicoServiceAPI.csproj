@@ -53,7 +53,11 @@
     <Compile Include="InstanceContainer.cs" />
     <Compile Include="NicoService.cs" />
     <Compile Include="NicoVideo\MylistPage.cs" />
+    <Compile Include="NicoVideo\Serial\AddMylist\Contract.cs" />
     <Compile Include="NicoVideo\Serial\EditTag\Tags.cs" />
+    <Compile Include="NicoVideo\Serial\RemoveMylist\Contract.cs" />
+    <Compile Include="NicoVideo\Serial\UpdateMylist\Contract.cs" />
+    <Compile Include="NicoVideo\User\AddMylistResponse.cs" />
     <Compile Include="NicoVideo\Video\TagResponse.cs" />
     <Compile Include="NicoVideo\Serial\EditTag\Contract.cs" />
     <Compile Include="NicoVideo\Serial\GetMylist\Contract.cs" />
@@ -113,6 +117,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="HtmlTextRegex.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

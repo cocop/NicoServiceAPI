@@ -14,6 +14,7 @@ namespace NicoServiceAPI.NicoVideo
     public class UserPage
     {
         User.User target;
+        VideoService host;
         Context context;
         Serial.Converter converter;
 
@@ -22,13 +23,14 @@ namespace NicoServiceAPI.NicoVideo
 
         /// <summary>内部生成時、使用される</summary>
         /// <param name="Target">ターゲットユーザー</param>
+        /// <param name="Host">生成元</param>
         /// <param name="Context">コンテキスト</param>
-        internal UserPage(User.User Target, Context Context)
+        internal UserPage(User.User Target, VideoService Host, Context Context)
         {
+            target = Target;
+            host = Host;
             context = Context;
             converter = new Serial.Converter(context);
-
-            target = Target;
         }
 
         /// <summary>ユーザー情報を取得する</summary>
@@ -97,6 +99,133 @@ namespace NicoServiceAPI.NicoVideo
                 });
 
             return new Streams<MylistGroupResponse>(
+                streamDataList.ToArray(),
+                () => result);
+        }
+
+        /// <summary>マイリストを追加する</summary>
+        /// <param name="AddItem">追加するマイリスト</param>
+        /// <param name="IsGetToken">トークンを取得するかどうか</param>
+        public AddMylistResponse AddMylist(Mylist.Mylist AddItem, bool IsGetToken = true)
+        {
+            var streams = OpenMylistAddStream(AddItem, IsGetToken);
+            return streams.Run(streams.UntreatedCount);
+        }
+
+        /// <summary>マイリストを追加するストリームを取得する</summary>
+        /// <param name="AddItem">追加するマイリスト</param>
+        /// <param name="IsGetToken">トークンを取得するかどうか</param>
+        public Streams<AddMylistResponse> OpenMylistAddStream(Mylist.Mylist AddItem, bool IsGetToken = true)
+        {
+            var streamDataList = new List<StreamData>();
+            AddMylistResponse result = null;
+
+            if (IsGetToken)
+                streamDataList.AddRange(host.GetToken());
+
+            var updateStreamDatas = context.Client.OpenUploadStream(ApiUrls.AddMylist, ContentType.Form).GetStreamDatas();
+            updateStreamDatas[0].GetWriteData = () =>
+                Encoding.UTF8.GetBytes(string.Format(
+                            PostTexts.AddMylist,
+                            AddItem.Title,
+                            AddItem.Description,
+                            (AddItem.IsPublic) ? "1" : "0",
+                            host.token));
+
+            updateStreamDatas[1].SetReadData = (data) =>
+            {
+                var serialize = new DataContractJsonSerializer(typeof(Serial.AddMylist.Contract));
+                result = converter.ConvertAddMylist((Serial.AddMylist.Contract)serialize.ReadObject(new MemoryStream(data)));
+                result.AddedMylist.Title = AddItem.Title;
+                result.AddedMylist.Description = AddItem.Description;
+                result.AddedMylist.IsPublic = AddItem.IsPublic;
+            };
+            streamDataList.AddRange(updateStreamDatas);
+
+            return new Streams<AddMylistResponse>(
+                streamDataList.ToArray(),
+                () => result);
+        }
+
+        /// <summary>マイリストを更新する</summary>
+        /// <param name="UpdateItem">更新するマイリスト</param>
+        /// <param name="IsGetToken">トークンを取得するかどうか</param>
+        public Response UpdateMylist(Mylist.Mylist UpdateItem, bool IsGetToken = true)
+        {
+            var streams = OpenMylistUpdateStream(UpdateItem, IsGetToken);
+            return streams.Run(streams.UntreatedCount);
+        }
+
+        /// <summary>マイリストを更新するストリームを取得する</summary>
+        /// <param name="UpdateItem">更新するマイリスト</param>
+        /// <param name="IsGetToken">トークンを取得するかどうか</param>
+        public Streams<Response> OpenMylistUpdateStream(Mylist.Mylist UpdateItem, bool IsGetToken = true)
+        {
+            var streamDataList = new List<StreamData>();
+            Response result = null;
+
+            if (IsGetToken)
+                streamDataList.AddRange(host.GetToken());
+
+            var updateStreamDatas = context.Client.OpenUploadStream(ApiUrls.UpdateMylist, ContentType.Form).GetStreamDatas();
+            updateStreamDatas[0].GetWriteData = () =>
+                Encoding.UTF8.GetBytes(string.Format(
+                            PostTexts.UpdateMylist,
+                            UpdateItem.ID,
+                            UpdateItem.Title,
+                            UpdateItem.Description,
+                            (UpdateItem.IsPublic) ? "1" : "0",
+                            host.token));
+
+            updateStreamDatas[1].SetReadData = (data) =>
+            {
+                var serialize = new DataContractJsonSerializer(typeof(Serial.UpdateMylist.Contract));
+                result = converter.ConvertResponse((Serial.UpdateMylist.Contract)serialize.ReadObject(new MemoryStream(data)));
+            };
+            streamDataList.AddRange(updateStreamDatas);
+
+            return new Streams<Response>(
+                streamDataList.ToArray(),
+                () => result);
+        }
+
+        /// <summary>マイリストを削除する</summary>
+        /// <param name="RemoveItem">削除するマイリスト</param>
+        /// <param name="IsGetToken">トークンを取得するかどうか</param>
+        public Response RemoveMylist(Mylist.Mylist RemoveItem, bool IsGetToken = true)
+        {
+            var streams = OpenMylistRemoveStream(RemoveItem, IsGetToken);
+            return streams.Run(streams.UntreatedCount);
+        }
+
+        /// <summary>マイリストを削除するストリームを取得する</summary>
+        /// <param name="RemoveItem">削除するマイリスト</param>
+        /// <param name="IsGetToken">トークンを取得するかどうか</param>
+        public Streams<Response> OpenMylistRemoveStream(Mylist.Mylist RemoveItem, bool IsGetToken = true)
+        {
+            var streamDataList = new List<StreamData>();
+            Response result = null;
+
+            if (IsGetToken)
+                streamDataList.AddRange(host.GetToken());
+
+            var updateStreamDatas = context.Client.OpenUploadStream(ApiUrls.RemoveMylist, ContentType.Form).GetStreamDatas();
+            updateStreamDatas[0].GetWriteData = () =>
+                Encoding.UTF8.GetBytes(string.Format(
+                            PostTexts.RemoveMylist,
+                            RemoveItem.ID,
+                            host.token));
+
+            updateStreamDatas[1].SetReadData = (data) =>
+            {
+                var str = Encoding.UTF8.GetString(data);
+
+                var serialize = new DataContractJsonSerializer(typeof(Serial.RemoveMylist.Contract));
+                result = converter.ConvertResponse((Serial.RemoveMylist.Contract)serialize.ReadObject(new MemoryStream(data)));
+            };
+            streamDataList.AddRange(updateStreamDatas);
+
+            return new Streams<Response>(
                 streamDataList.ToArray(),
                 () => result);
         }

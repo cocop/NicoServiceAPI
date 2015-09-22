@@ -18,11 +18,10 @@ namespace NicoServiceAPI.NicoVideo
     public class VideoPage
     {
         VideoInfo target;
-
+        VideoService host;
         Context context;
         Serial.Converter converter;
 
-        string token;
         string watchAuthKey;
 
         NameValueCollection videoCache;
@@ -33,11 +32,12 @@ namespace NicoServiceAPI.NicoVideo
 
         /// <summary>内部生成時、使用される</summary>
         /// <param name="Target">ターゲット動画</param>
+        /// <param name="Host">生成元</param>
         /// <param name="Context">コンテキスト</param>
-        internal VideoPage(VideoInfo Target, Context Context)
+        internal VideoPage(VideoInfo Target, VideoService Host, Context Context)
         {
             target = Target;
-
+            host = Host;
             context = Context;
             converter = new Serial.Converter(context);
         }
@@ -334,32 +334,36 @@ namespace NicoServiceAPI.NicoVideo
 
         /// <summary>タグを追加する</summary>
         /// <param name="AddItem">追加するタグ</param>
-        public TagResponse AddTag(Tag AddItem)
+        /// <param name="IsGetToken">トークンを取得するかどうか</param>
+        public TagResponse AddTag(Tag AddItem, bool IsGetToken = true)
         {
-            var streams = OpenEditTagStream(AddItem, PostTexts.AddVideoTag);
+            var streams = OpenEditTagStream(AddItem, PostTexts.AddVideoTag, IsGetToken);
             return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>タグを追加するストリームを取得する</summary>
         /// <param name="AddItem">追加するタグ</param>
-        public Streams<TagResponse> OpenAddTagStream(Tag AddItem)
+        /// <param name="IsGetToken">トークンを取得するかどうか</param>
+        public Streams<TagResponse> OpenAddTagStream(Tag AddItem, bool IsGetToken = true)
         {
-            return OpenEditTagStream(AddItem, PostTexts.AddVideoTag);
+            return OpenEditTagStream(AddItem, PostTexts.AddVideoTag, IsGetToken);
         }
 
         /// <summary>タグを削除する</summary>
         /// <param name="RemoveItem">削除するタグ</param>
-        public TagResponse RemoveTag(Tag RemoveItem)
+        /// <param name="IsGetToken">トークンを取得するかどうか</param>
+        public TagResponse RemoveTag(Tag RemoveItem, bool IsGetToken = true)
         {
-            var streams = OpenEditTagStream(RemoveItem, PostTexts.RemoveVideoTag);
+            var streams = OpenEditTagStream(RemoveItem, PostTexts.RemoveVideoTag, IsGetToken);
             return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>タグを削除するストリームを取得する</summary>
         /// <param name="RemoveItem">削除するタグ</param>
-        public Streams<TagResponse> OpenRemoveTagStream(Tag RemoveItem)
+        /// <param name="IsGetToken">トークンを取得するかどうか</param>
+        public Streams<TagResponse> OpenRemoveTagStream(Tag RemoveItem, bool IsGetToken = true)
         {
-            return OpenEditTagStream(RemoveItem, PostTexts.RemoveVideoTag);
+            return OpenEditTagStream(RemoveItem, PostTexts.RemoveVideoTag, IsGetToken);
         }
 
         
@@ -386,7 +390,7 @@ namespace NicoServiceAPI.NicoVideo
         }
 
 
-        private Streams<TagResponse> OpenEditTagStream(Tag Tag, string PostText)
+        private Streams<TagResponse> OpenEditTagStream(Tag Tag, string PostText, bool IsGetToken)
         {
             var videoPageStreamData = OpenVideoPageStreamData();
             var streamDataList = new List<StreamData>();
@@ -401,8 +405,8 @@ namespace NicoServiceAPI.NicoVideo
 
             uploadStreamData[0].GetWriteData = () =>
             {
-                if (token == null)
-                    token = HtmlTextRegex.VideoTagToken.Match(htmlCache).Groups["value"].Value;
+                if (IsGetToken)
+                    host.token = HtmlTextRegex.VideoTagToken.Match(htmlCache).Groups["value"].Value;
 
                 if (watchAuthKey == null)
                     watchAuthKey = HtmlTextRegex.WatchAuthKey.Match(htmlCache).Groups["value"].Value;
@@ -411,7 +415,7 @@ namespace NicoServiceAPI.NicoVideo
                     string.Format(
                         PostText,
                         Tag.Name,
-                        token,
+                        host.token,
                         watchAuthKey,
                         (Tag.IsLock == true) ? "1" : "0"));
             };

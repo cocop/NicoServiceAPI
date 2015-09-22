@@ -5,7 +5,7 @@ namespace NicoServiceAPI.Connection
     /******************************************/
     /// <summary>ポストするコンテンツタイプ</summary>
     /******************************************/
-    public enum ContentType
+    internal enum ContentType
     {
         None,
         Form,

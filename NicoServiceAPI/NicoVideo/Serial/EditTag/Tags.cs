@@ -2,6 +2,7 @@
 
 namespace NicoServiceAPI.NicoVideo.Serial.EditTag
 {
+    /// <summary>タグ</summary>
     public class Tags
     {
         /// <summary>タグID？要確認/*!*/</summary>

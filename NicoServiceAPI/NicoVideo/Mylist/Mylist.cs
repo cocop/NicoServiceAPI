@@ -7,8 +7,8 @@ namespace NicoServiceAPI.NicoVideo.Mylist
     /******************************************/
     public class Mylist
     {
-        /// <summary>内部生成時、使用される。</summary>
-        internal Mylist()
+        /// <summary>IDを指定せず作成する</summary>
+        public Mylist()
         {
         }
 
