@@ -94,7 +94,7 @@ namespace NicoServiceAPI.Connection
         /// <param name="RunCount">処理するストリームの数</param>
         public DataType Run(int RunCount)
         {
-            if (RunCount <= 0 && RunCount > UntreatedCount)
+            if (RunCount < 0 && RunCount > UntreatedCount)
                 return default(DataType);
 
             for (int i = 0; i < RunCount; i++)

@@ -224,7 +224,6 @@ namespace NicoServiceAPI.NicoVideo
         public Streams<VideoInfoResponse> OpenVideoInfoDownloadStream(bool IsHtml = true)
         {
             var streamDataList = new List<StreamData>();
-            var htmlCacheAction = new Action(() => { });
             VideoInfoResponse result = null;
 
             #region APIアクセス
@@ -250,7 +249,6 @@ namespace NicoServiceAPI.NicoVideo
                             new MemoryStream(data));
 
                         result = converter.ConvertVideoInfoResponse(serial);
-                        htmlCacheAction();
                     }
                 });
             #endregion
@@ -259,7 +257,7 @@ namespace NicoServiceAPI.NicoVideo
             if (IsHtml)//HTMLから取得する
             {
                 var videoPageStreamData = OpenVideoPageStreamData();
-                if (videoPageStreamData == null)
+                if (videoPageStreamData != null)
                 {
                     var super = videoPageStreamData.SetReadData;
 
@@ -272,15 +270,6 @@ namespace NicoServiceAPI.NicoVideo
                     };
 
                     streamDataList.Add(videoPageStreamData);
-                }
-                else
-                {
-                    htmlCacheAction = () =>
-                    {
-                        if (result.Status != Status.OK) return;
-
-                        result.VideoInfos[0].Description = HtmlTextRegex.VideoDescription.Match(htmlCache).Groups["value"].Value;
-                    };
                 }
             }
             #endregion
