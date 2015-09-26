@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace NicoServiceAPI.Connection
 {
@@ -34,13 +35,12 @@ namespace NicoServiceAPI.Connection
         }
 
         /// <summary>ストリームを取得する、その種類はストリームタイプを参照</summary>
-        /// <param name="WriteSize">ストリームの書き込みデータサイズ</param>
-        public Stream GetStream(int WriteSize = 0)
+        public Task<Stream> GetStream()
         {
             if (nowIndex > streamDatas.Length)
                 return null;
 
-            return streamDatas[nowIndex].GetStream(WriteSize);
+            return streamDatas[nowIndex].GetStream();
         }
 
         internal StreamData[] GetStreamDatas()
@@ -103,10 +103,14 @@ namespace NicoServiceAPI.Connection
                 {
                     case StreamType.Read:
                         {
-                            using (var source = GetStream())
                             using (var destination = new MemoryStream())
                             {
-                                source.CopyTo(destination);
+                                var task = GetStream();
+                                task.RunSynchronously();
+
+                                using (var source = task.Result)
+                                    source.CopyTo(destination);
+
                                 SetReadData(destination.ToArray());
                             }
                         } break;
@@ -116,7 +120,7 @@ namespace NicoServiceAPI.Connection
                             var data = GetWriteData();
 
                             using (var source = new MemoryStream(data))
-                            using (var destination = GetStream(data.Length))
+                            using (var destination = GetStream().Result)
                                 source.CopyTo(destination);
                         } break;
 

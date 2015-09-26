@@ -1,5 +1,6 @@
 ﻿using NicoServiceAPI.Connection;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace NicoServiceAPI.NicoVideo
 {
@@ -34,7 +35,7 @@ namespace NicoServiceAPI.NicoVideo
         }
 
         /// <summary>画像ダウンロード用ストリームの取得</summary>
-        public Stream GetStream()
+        public Task<Stream> GetStream()
         {
             return client.OpenDownloadStream(Url);
         }

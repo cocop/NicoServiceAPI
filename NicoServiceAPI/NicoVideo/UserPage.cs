@@ -37,13 +37,13 @@ namespace NicoServiceAPI.NicoVideo
         /// <param name="IsHtml">ユーザー情報取得にHTMLを使用するかどうか、現在使用不可</param>
         public UserResponse DownloadUser(bool IsHtml = true)
         {
-            var streams = OpenUserDownloadStream(IsHtml);
+            var streams = OpenUserDownloadStreams(IsHtml);
             return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>ユーザー情報を取得するストリームを取得する</summary>
         /// <param name="IsHtml">ユーザー情報取得にHTMLを使用するかどうか、現在使用不可</param>
-        public Streams<UserResponse> OpenUserDownloadStream(bool IsHtml = true)
+        public Streams<UserResponse> OpenUserDownloadStreams(bool IsHtml = true)
         {
             var streamDataList = new List<StreamData>();
             UserResponse result = null;
@@ -52,7 +52,7 @@ namespace NicoServiceAPI.NicoVideo
                 new StreamData()
                 {
                     StreamType = StreamType.Read,
-                    GetStream = (size) => context.Client.OpenDownloadStream(string.Format(ApiUrls.GetVideoUserHtml, target.ID)),
+                    GetStream = () => context.Client.OpenDownloadStream(string.Format(ApiUrls.GetVideoUserHtml, target.ID)),
                     SetReadData = (data) =>
                     {
                         var html = Encoding.UTF8.GetString(data);
@@ -76,12 +76,12 @@ namespace NicoServiceAPI.NicoVideo
         /// <summary>マイリストグループを取得する、現在は自分のマイリストグループのみ、ユーザー指定は無視される</summary>
         public MylistGroupResponse DownloadMylistGroup()
         {
-            var streams = OpenMylistGroupDownloadStream();
+            var streams = OpenMylistGroupDownloadStreams();
             return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>マイリストグループを取得するストリームを取得する、現在は自分のマイリストグループのみ、ユーザー指定は無視される</summary>
-        public Streams<MylistGroupResponse> OpenMylistGroupDownloadStream()
+        public Streams<MylistGroupResponse> OpenMylistGroupDownloadStreams()
         {
             var streamDataList = new List<StreamData>();
             MylistGroupResponse result = null;
@@ -90,7 +90,7 @@ namespace NicoServiceAPI.NicoVideo
                 new StreamData()
                 {
                     StreamType = StreamType.Read,
-                    GetStream = (size) => context.Client.OpenDownloadStream(ApiUrls.GetMylistGroup),
+                    GetStream = () => context.Client.OpenDownloadStream(ApiUrls.GetMylistGroup),
                     SetReadData = (data) =>
                     {
                         var serialize = new DataContractJsonSerializer(typeof(Serial.GetMylistGroup.Contract));
@@ -108,14 +108,14 @@ namespace NicoServiceAPI.NicoVideo
         /// <param name="IsGetToken">トークンを取得するかどうか</param>
         public AddMylistResponse AddMylist(Mylist.Mylist AddItem, bool IsGetToken = true)
         {
-            var streams = OpenMylistAddStream(AddItem, IsGetToken);
+            var streams = OpenMylistAddStreams(AddItem, IsGetToken);
             return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>マイリストを追加するストリームを取得する</summary>
         /// <param name="AddItem">追加するマイリスト</param>
         /// <param name="IsGetToken">トークンを取得するかどうか</param>
-        public Streams<AddMylistResponse> OpenMylistAddStream(Mylist.Mylist AddItem, bool IsGetToken = true)
+        public Streams<AddMylistResponse> OpenMylistAddStreams(Mylist.Mylist AddItem, bool IsGetToken = true)
         {
             var streamDataList = new List<StreamData>();
             AddMylistResponse result = null;
@@ -123,7 +123,7 @@ namespace NicoServiceAPI.NicoVideo
             if (IsGetToken)
                 streamDataList.AddRange(host.GetToken());
 
-            var updateStreamDatas = context.Client.OpenUploadStream(ApiUrls.AddMylist, ContentType.Form).GetStreamDatas();
+            var updateStreamDatas = context.Client.OpenUploadStreams(ApiUrls.AddMylist, ContentType.Form).GetStreamDatas();
             updateStreamDatas[0].GetWriteData = () =>
                 Encoding.UTF8.GetBytes(string.Format(
                             PostTexts.AddMylist,
@@ -152,14 +152,14 @@ namespace NicoServiceAPI.NicoVideo
         /// <param name="IsGetToken">トークンを取得するかどうか</param>
         public Response UpdateMylist(Mylist.Mylist UpdateItem, bool IsGetToken = true)
         {
-            var streams = OpenMylistUpdateStream(UpdateItem, IsGetToken);
+            var streams = OpenMylistUpdateStreams(UpdateItem, IsGetToken);
             return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>マイリストを更新するストリームを取得する</summary>
         /// <param name="UpdateItem">更新するマイリスト</param>
         /// <param name="IsGetToken">トークンを取得するかどうか</param>
-        public Streams<Response> OpenMylistUpdateStream(Mylist.Mylist UpdateItem, bool IsGetToken = true)
+        public Streams<Response> OpenMylistUpdateStreams(Mylist.Mylist UpdateItem, bool IsGetToken = true)
         {
             var streamDataList = new List<StreamData>();
             Response result = null;
@@ -167,7 +167,7 @@ namespace NicoServiceAPI.NicoVideo
             if (IsGetToken)
                 streamDataList.AddRange(host.GetToken());
 
-            var updateStreamDatas = context.Client.OpenUploadStream(ApiUrls.UpdateMylist, ContentType.Form).GetStreamDatas();
+            var updateStreamDatas = context.Client.OpenUploadStreams(ApiUrls.UpdateMylist, ContentType.Form).GetStreamDatas();
             updateStreamDatas[0].GetWriteData = () =>
                 Encoding.UTF8.GetBytes(string.Format(
                             PostTexts.UpdateMylist,
@@ -194,14 +194,14 @@ namespace NicoServiceAPI.NicoVideo
         /// <param name="IsGetToken">トークンを取得するかどうか</param>
         public Response RemoveMylist(Mylist.Mylist RemoveItem, bool IsGetToken = true)
         {
-            var streams = OpenMylistRemoveStream(RemoveItem, IsGetToken);
+            var streams = OpenMylistRemoveStreams(RemoveItem, IsGetToken);
             return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>マイリストを削除するストリームを取得する</summary>
         /// <param name="RemoveItem">削除するマイリスト</param>
         /// <param name="IsGetToken">トークンを取得するかどうか</param>
-        public Streams<Response> OpenMylistRemoveStream(Mylist.Mylist RemoveItem, bool IsGetToken = true)
+        public Streams<Response> OpenMylistRemoveStreams(Mylist.Mylist RemoveItem, bool IsGetToken = true)
         {
             var streamDataList = new List<StreamData>();
             Response result = null;
@@ -209,7 +209,7 @@ namespace NicoServiceAPI.NicoVideo
             if (IsGetToken)
                 streamDataList.AddRange(host.GetToken());
 
-            var updateStreamDatas = context.Client.OpenUploadStream(ApiUrls.RemoveMylist, ContentType.Form).GetStreamDatas();
+            var updateStreamDatas = context.Client.OpenUploadStreams(ApiUrls.RemoveMylist, ContentType.Form).GetStreamDatas();
             updateStreamDatas[0].GetWriteData = () =>
                 Encoding.UTF8.GetBytes(string.Format(
                             PostTexts.RemoveMylist,
@@ -233,12 +233,12 @@ namespace NicoServiceAPI.NicoVideo
         /// <summary>視聴履歴をダウンロードする、ユーザー指定は無視される</summary>
         public ViewHistoryResponse DownloadViewHistory()
         {
-            var streams = OpenViewHistoryDownloadStream();
+            var streams = OpenViewHistoryDownloadStreams();
             return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>視聴履歴をダウンロードするストリームを取得する、ユーザー指定は無視される</summary>
-        public Streams<ViewHistoryResponse> OpenViewHistoryDownloadStream()
+        public Streams<ViewHistoryResponse> OpenViewHistoryDownloadStreams()
         {
             var serialize = new DataContractJsonSerializer(typeof(Serial.GetVideoViewHistory.Contract));
             var streamDataList = new List<StreamData>();
@@ -247,7 +247,7 @@ namespace NicoServiceAPI.NicoVideo
             streamDataList.Add(new StreamData()
             {
                 StreamType = StreamType.Read,
-                GetStream = (size) => context.Client.OpenDownloadStream(ApiUrls.GetVideoViewHistory),
+                GetStream = () => context.Client.OpenDownloadStream(ApiUrls.GetVideoViewHistory),
                 SetReadData = (data) =>
                 {
                     var serial = (Serial.GetVideoViewHistory.Contract)serialize.ReadObject(new MemoryStream(data));

@@ -29,11 +29,13 @@ namespace NicoServiceAPI
         /// <param name="Password">パスワード</param>
         public bool Login(string Mail, string Password)
         {
-            context.Client.Upload(
+            var tst = context.Client.Upload(
                 ApiUrls.Login,
                 Encoding.UTF8.GetBytes(
                     String.Format(PostTexts.Login, Mail, Password)),
                 ContentType.Form);
+
+            var str = Encoding.UTF8.GetString(tst);
 
             foreach (Cookie cookie in context.Client.CookieContainer.GetCookies(new Uri(ApiUrls.Host)))
                 if (cookie.Name == "user_session")

@@ -1,5 +1,6 @@
 ﻿using NicoServiceAPI.Connection;
 using System;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace NicoServiceAPI.NicoVideo.Serial
@@ -189,9 +190,6 @@ namespace NicoServiceAPI.NicoVideo.Serial
         public User.ViewHistoryResponse ConvertViewHistoryResponse(GetVideoViewHistory.Contract Serial)
         {
             var result = new User.ViewHistoryResponse();
-
-            if (result.History != null) return null;
-
 
             result.Status = ConvertStatus(Serial.status, Serial.error);
             result.ErrorMessage = (Serial.error == null) ? null : Serial.error.description;

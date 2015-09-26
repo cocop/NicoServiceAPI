@@ -7,7 +7,6 @@ using System.IO;
 using System.Net;
 using System.Runtime.Serialization.Json;
 using System.Text;
-using System.Web;
 using System.Xml.Serialization;
 
 namespace NicoServiceAPI.NicoVideo
@@ -51,12 +50,12 @@ namespace NicoServiceAPI.NicoVideo
         /// <summary>動画をダウンロードする</summary>
         public byte[] DownloadVideo()
         {
-            var streams = OpenVideoDownloadStream();
+            var streams = OpenVideoDownloadStreams();
             return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>動画をダウンロードするストリームを取得する</summary>
-        public Streams<byte[]> OpenVideoDownloadStream()
+        public Streams<byte[]> OpenVideoDownloadStreams()
         {
             var videoAccessStreamData = OpenVideoAccessStreamData();
             var videoPageStreamData = OpenVideoPageStreamData();
@@ -73,7 +72,7 @@ namespace NicoServiceAPI.NicoVideo
                 new StreamData()
                 {
                     StreamType = StreamType.Read,
-                    GetStream = (size) =>
+                    GetStream = () =>
                     {
                         try
                         {
@@ -96,13 +95,13 @@ namespace NicoServiceAPI.NicoVideo
         /// <param name="Comment">投稿するコメント</param>
         public Response UploadComment(Comment Comment)
         {
-            var streams = OpenCommentUploadStream(Comment);
+            var streams = OpenCommentUploadStreams(Comment);
             return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>コメントをアップロードするストリームを取得する</summary>
         /// <param name="Comment">投稿するコメント</param>
-        public Streams<Response> OpenCommentUploadStream(Comment Comment)
+        public Streams<Response> OpenCommentUploadStreams(Comment Comment)
         {
             var videoAccessStreamData = OpenVideoAccessStreamData();
             var streamDataList = new List<StreamData>();
@@ -113,13 +112,13 @@ namespace NicoServiceAPI.NicoVideo
                 streamDataList.Add(videoAccessStreamData);
 
             if (videoCache == null || videoCache.Count < 15)
-                streamDataList.AddRange(OpenCommentDownloadStream().GetStreamDatas());
+                streamDataList.AddRange(OpenCommentDownloadStreams().GetStreamDatas());
 
             streamDataList.Add(
                 new StreamData()
                 {
                     StreamType = StreamType.Read,
-                    GetStream = (size) =>
+                    GetStream = () =>
                     {
                         return context.Client.OpenDownloadStream(
                             string.Format(ApiUrls.PostVideoComment,
@@ -132,7 +131,7 @@ namespace NicoServiceAPI.NicoVideo
                     },
                 });
 
-            var uploadStreamData = context.Client.OpenUploadStream(videoCache["ms"], ContentType.XML).GetStreamDatas();
+            var uploadStreamData = context.Client.OpenUploadStreams(videoCache["ms"], ContentType.XML).GetStreamDatas();
             uploadStreamData[0].GetWriteData = () =>
             {
                 return Encoding.UTF8.GetBytes(
@@ -163,12 +162,12 @@ namespace NicoServiceAPI.NicoVideo
         /// <summary>コメントをダウンロードする</summary>
         public CommentResponse DownloadComment()
         {
-            var streams = OpenCommentDownloadStream();
+            var streams = OpenCommentDownloadStreams();
             return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>コメントをダウンロードするストリームを取得する</summary>
-        public Streams<CommentResponse> OpenCommentDownloadStream()
+        public Streams<CommentResponse> OpenCommentDownloadStreams()
         {
             var videoAccessStreamData = OpenVideoAccessStreamData();
             var streamDataList = new List<StreamData>();
@@ -180,7 +179,7 @@ namespace NicoServiceAPI.NicoVideo
             streamDataList.Add(new StreamData()
             {
                 StreamType = StreamType.Read,
-                GetStream = (size) =>
+                GetStream = () =>
                 {
                     try
                     {
@@ -215,13 +214,13 @@ namespace NicoServiceAPI.NicoVideo
         /// <param name="IsHtml">合わせてHtmlから情報を取得するか、現在動画説明文のみ</param>
         public VideoInfoResponse DownloadVideoInfo(bool IsHtml = true)
         {
-            var streams = OpenVideoInfoDownloadStream(IsHtml);
+            var streams = OpenVideoInfoDownloadStreams(IsHtml);
             return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>>動画の詳細情報を取得するストリームを取得する、情報は0番目の配列に格納される</summary>
         /// <param name="IsHtml">合わせてHtmlから情報を取得するか、現在動画説明文のみ</param>
-        public Streams<VideoInfoResponse> OpenVideoInfoDownloadStream(bool IsHtml = true)
+        public Streams<VideoInfoResponse> OpenVideoInfoDownloadStreams(bool IsHtml = true)
         {
             var streamDataList = new List<StreamData>();
             VideoInfoResponse result = null;
@@ -231,7 +230,7 @@ namespace NicoServiceAPI.NicoVideo
                 new StreamData()
                 {
                     StreamType = StreamType.Read,
-                    GetStream = (size) =>
+                    GetStream = () =>
                     {
                         try
                         {
@@ -282,12 +281,12 @@ namespace NicoServiceAPI.NicoVideo
         /// <summary>タグを取得する</summary>
         public TagResponse DownloadTags()
         {
-            var streams = OpenTagsDownloadStream();
+            var streams = OpenTagsDownloadStreams();
             return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>タグを取得するストリームを取得する</summary>
-        public Streams<TagResponse> OpenTagsDownloadStream()
+        public Streams<TagResponse> OpenTagsDownloadStreams()
         {
             var streamDataList = new List<StreamData>();
             TagResponse result = null;
@@ -296,7 +295,7 @@ namespace NicoServiceAPI.NicoVideo
                 new StreamData()
                 {
                     StreamType = StreamType.Read,
-                    GetStream = (size) =>
+                    GetStream = () =>
                     {
                         try
                         {
@@ -326,16 +325,16 @@ namespace NicoServiceAPI.NicoVideo
         /// <param name="IsGetToken">トークンを取得するかどうか</param>
         public TagResponse AddTag(Tag AddItem, bool IsGetToken = true)
         {
-            var streams = OpenEditTagStream(AddItem, PostTexts.AddVideoTag, IsGetToken);
+            var streams = OpenEditTagStreams(AddItem, PostTexts.AddVideoTag, IsGetToken);
             return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>タグを追加するストリームを取得する</summary>
         /// <param name="AddItem">追加するタグ</param>
         /// <param name="IsGetToken">トークンを取得するかどうか</param>
-        public Streams<TagResponse> OpenAddTagStream(Tag AddItem, bool IsGetToken = true)
+        public Streams<TagResponse> OpenAddTagStreams(Tag AddItem, bool IsGetToken = true)
         {
-            return OpenEditTagStream(AddItem, PostTexts.AddVideoTag, IsGetToken);
+            return OpenEditTagStreams(AddItem, PostTexts.AddVideoTag, IsGetToken);
         }
 
         /// <summary>タグを削除する</summary>
@@ -343,16 +342,16 @@ namespace NicoServiceAPI.NicoVideo
         /// <param name="IsGetToken">トークンを取得するかどうか</param>
         public TagResponse RemoveTag(Tag RemoveItem, bool IsGetToken = true)
         {
-            var streams = OpenEditTagStream(RemoveItem, PostTexts.RemoveVideoTag, IsGetToken);
+            var streams = OpenEditTagStreams(RemoveItem, PostTexts.RemoveVideoTag, IsGetToken);
             return streams.Run(streams.UntreatedCount);
         }
 
         /// <summary>タグを削除するストリームを取得する</summary>
         /// <param name="RemoveItem">削除するタグ</param>
         /// <param name="IsGetToken">トークンを取得するかどうか</param>
-        public Streams<TagResponse> OpenRemoveTagStream(Tag RemoveItem, bool IsGetToken = true)
+        public Streams<TagResponse> OpenRemoveTagStreams(Tag RemoveItem, bool IsGetToken = true)
         {
-            return OpenEditTagStream(RemoveItem, PostTexts.RemoveVideoTag, IsGetToken);
+            return OpenEditTagStreams(RemoveItem, PostTexts.RemoveVideoTag, IsGetToken);
         }
 
         
@@ -379,7 +378,7 @@ namespace NicoServiceAPI.NicoVideo
         }
 
 
-        private Streams<TagResponse> OpenEditTagStream(Tag Tag, string PostText, bool IsGetToken)
+        private Streams<TagResponse> OpenEditTagStreams(Tag Tag, string PostText, bool IsGetToken)
         {
             var videoPageStreamData = OpenVideoPageStreamData();
             var streamDataList = new List<StreamData>();
@@ -388,7 +387,7 @@ namespace NicoServiceAPI.NicoVideo
             if (videoPageStreamData != null)
                 streamDataList.Add(videoPageStreamData);
 
-            var uploadStreamData = context.Client.OpenUploadStream(
+            var uploadStreamData = context.Client.OpenUploadStreams(
                 string.Format(ApiUrls.EditVideoTag, target.ID),
                 ContentType.Form).GetStreamDatas();
 
@@ -429,7 +428,7 @@ namespace NicoServiceAPI.NicoVideo
             return new StreamData()
             {
                 StreamType = StreamType.Read,
-                GetStream = (size) =>
+                GetStream = () =>
                 {
                     try
                     {
@@ -442,9 +441,17 @@ namespace NicoServiceAPI.NicoVideo
                 },
                 SetReadData = (data) =>
                 {
-                    videoCache = HttpUtility.ParseQueryString(
-                        Uri.UnescapeDataString(
-                            Encoding.UTF8.GetString(data)));
+                    var cacheString = Uri.UnescapeDataString(Encoding.UTF8.GetString(data));
+                    var cacheStrings = cacheString.Split('&');
+                    videoCache = new NameValueCollection();
+
+                    for (int i = 0; i < cacheStrings.Length; i++)
+                    {
+                        var index = cacheStrings[i].IndexOf('=');
+                        videoCache.Add(
+                            cacheStrings[i].Substring(0, index),
+                            cacheStrings[i].Substring(index + 1, cacheStrings[i].Length - 1 - index));
+                    }
                 },
             };
         }
@@ -456,7 +463,7 @@ namespace NicoServiceAPI.NicoVideo
             return new StreamData()
             {
                 StreamType = StreamType.Read,
-                GetStream = (size) =>
+                GetStream = () =>
                 {
                     try
                     {

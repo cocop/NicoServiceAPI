@@ -69,7 +69,7 @@ namespace NicoServiceAPI.NicoVideo
             SearchType      SearchType,
             SearchOption    SearchOption)
         {
-            var streams = OpenSearchStream(Keyword, SearchPage, SearchType, SearchOption);
+            var streams = OpenSearchStreams(Keyword, SearchPage, SearchType, SearchOption);
             return streams.Run(streams.UntreatedCount);
         }
 
@@ -78,7 +78,7 @@ namespace NicoServiceAPI.NicoVideo
         /// <param name="SearchPage">検索ページの指定、1～nの間の数値を指定する</param>
         /// <param name="SearchType">検索方法を指定する</param>
         /// <param name="SearchOption">検索オプションを指定する</param>
-        public Streams<Video.VideoInfoResponse> OpenSearchStream(
+        public Streams<Video.VideoInfoResponse> OpenSearchStreams(
             string          Keyword,
             int             SearchPage,
             SearchType      SearchType,
@@ -92,7 +92,7 @@ namespace NicoServiceAPI.NicoVideo
                 new StreamData()
                 {
                     StreamType = StreamType.Read,
-                    GetStream = (size) =>
+                    GetStream = () =>
                     {
                         return context.Client.OpenDownloadStream(
                             String.Format(
@@ -123,7 +123,7 @@ namespace NicoServiceAPI.NicoVideo
                 new StreamData()
                 {
                     StreamType = StreamType.Read,
-                    GetStream = (size) => context.Client.OpenDownloadStream(ApiUrls.GetMylist),
+                    GetStream = () => context.Client.OpenDownloadStream(ApiUrls.GetMylist),
                     SetReadData = (data) =>
                     {
                         token = HtmlTextRegex.

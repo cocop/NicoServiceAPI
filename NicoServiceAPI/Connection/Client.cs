@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace NicoServiceAPI.Connection
 {
@@ -8,11 +9,11 @@ namespace NicoServiceAPI.Connection
     /******************************************/
     internal class Client
     {
-        const int BufferLength = 1024;
-
         public CookieContainer CookieContainer { get; set; }
 
         /******************************************/
+        //HttpWebRequestからTask挟んでストリームを取得する時そのままResultにアクセスしても取れてる
+        //自分で作ったTaskだと取れないので多分あんまりよろしくない、そのうち直す
         /******************************************/
 
         public Client()
@@ -30,32 +31,19 @@ namespace NicoServiceAPI.Connection
 
             request.Method = "POST";
             request.ContentType = ContentType.ToKey();
-            request.ContentLength = Data.Length;
             request.CookieContainer = CookieContainer;
 
             //アップロード
-            Stream requestStream = request.GetRequestStream();
-            
-            requestStream.Write(Data, 0, Data.Length);
-            requestStream.Close();
+            using (var requestStream = request.GetRequestStreamAsync().Result)
+                requestStream.Write(Data, 0, Data.Length);
 
             //レスポンス取得
-            WebResponse response = request.GetResponse();
-            Stream responseStream = response.GetResponseStream();
-            MemoryStream memoryStream = new MemoryStream();
-            byte[] buffer = new byte[BufferLength];
-            int readLength = -1;
-
-            while (readLength != 0)
+            using (var response = request.GetResponseAsync().Result.GetResponseStream())
+            using (var memoryStream = new MemoryStream())
             {
-                readLength = responseStream.Read(buffer, 0, buffer.Length);
-                memoryStream.Write(buffer, 0, readLength);
+                response.CopyTo(memoryStream);
+                return memoryStream.ToArray();
             }
-
-            responseStream.Close();
-            memoryStream.Close();
-
-            return memoryStream.ToArray();
         }
 
         /// <summary>データのダウンロード</summary>
@@ -63,29 +51,22 @@ namespace NicoServiceAPI.Connection
         public byte[] Download(string Url)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url);
+
+            request.Method = "GET";
             request.CookieContainer = CookieContainer;
-            WebResponse response = request.GetResponse();
-            Stream responseStream = response.GetResponseStream();
-            MemoryStream memoryStream = new MemoryStream();
-            byte[] buffer = new byte[BufferLength];
-            int readLength = -1;
 
-            while (readLength != 0)
+            using (var response = request.GetResponseAsync().Result.GetResponseStream())
+            using (var memoryStream = new MemoryStream())
             {
-                readLength = responseStream.Read(buffer, 0, buffer.Length);
-                memoryStream.Write(buffer, 0, readLength);
+                response.CopyTo(memoryStream);
+                return memoryStream.ToArray();
             }
-
-            responseStream.Close();
-            memoryStream.Close();
-
-            return memoryStream.ToArray();
         }
 
         /// <summary>アップロードストリームを開く</summary>
         /// <param name="Url">アップロードURL</param>
         /// <param name="ContentType">ポストするコンテンツタイプ</param>
-        public Streams OpenUploadStream(string Url, ContentType ContentType = ContentType.None)
+        public Streams OpenUploadStreams(string Url, ContentType ContentType = ContentType.None)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url);
 
@@ -99,28 +80,26 @@ namespace NicoServiceAPI.Connection
                     new StreamData()
                     {
                         StreamType = StreamType.Write,
-                        GetStream = (size) => 
-                        {
-                            request.ContentLength = size;
-                            return request.GetRequestStream();
-                        },
+                        GetStream = () => request.GetRequestStreamAsync(),
                     },
                     new StreamData()
                     {
                         StreamType = StreamType.Read,
-                        GetStream = (size) => request.GetResponse().GetResponseStream(),
+                        GetStream = () => new Task<Stream>(() => request.GetResponseAsync().Result.GetResponseStream()),
                     },
                 });
         }
 
         /// <summary>ダウンロードストリームを開く</summary>
         /// <param name="Url">ダウンロードURL</param>
-        public Stream OpenDownloadStream(string Url)
+        public Task<Stream> OpenDownloadStream(string Url)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url);
+
+            request.Method = "GET";
             request.CookieContainer = CookieContainer;
 
-            return request.GetResponse().GetResponseStream();
+            return new Task<Stream>(() => request.GetResponseAsync().Result.GetResponseStream());
         }
 
     }
