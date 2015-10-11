@@ -35,7 +35,7 @@ namespace NicoServiceAPI.NicoVideo
         }
 
         /// <summary>画像ダウンロード用ストリームの取得</summary>
-        public Task<Stream> GetStream()
+        public Task<ConnectionStream> GetStream()
         {
             return client.OpenDownloadStream(Url);
         }

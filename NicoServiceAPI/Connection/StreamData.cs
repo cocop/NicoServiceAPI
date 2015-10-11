@@ -10,7 +10,7 @@ namespace NicoServiceAPI.Connection
     internal class StreamData
     {
         /// <summary>処理ストリーム</summary>
-        public Func<Task<Stream>> GetStream { get; set; }
+        public Func<Task<ConnectionStream>> GetStream { get; set; }
 
         /// <summary>ストリームタイプ</summary>
         public StreamType StreamType { get; set; }

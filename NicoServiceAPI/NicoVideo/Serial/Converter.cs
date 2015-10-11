@@ -194,6 +194,9 @@ namespace NicoServiceAPI.NicoVideo.Serial
             result.Status = ConvertStatus(Serial.status, Serial.error);
             result.ErrorMessage = (Serial.error == null) ? null : Serial.error.description;
 
+            if (result.Status != Status.OK) return result;
+            
+
             result.History = new Video.VideoInfo[Serial.history.Length];
             for (int i = 0; i < result.History.Length; i++)
             {

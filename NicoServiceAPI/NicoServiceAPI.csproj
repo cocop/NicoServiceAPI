@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiUrls.cs" />
+    <Compile Include="Connection\ConnectionStream.cs" />
     <Compile Include="Connection\ContentType.cs" />
     <Compile Include="Context.cs" />
     <Compile Include="Connection\Client.cs" />

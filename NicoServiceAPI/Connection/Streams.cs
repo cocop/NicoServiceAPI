@@ -35,7 +35,7 @@ namespace NicoServiceAPI.Connection
         }
 
         /// <summary>ストリームを取得する、その種類はストリームタイプを参照</summary>
-        public Task<Stream> GetStream()
+        public Task<ConnectionStream> GetStream()
         {
             if (nowIndex > streamDatas.Length)
                 return null;
@@ -108,7 +108,7 @@ namespace NicoServiceAPI.Connection
                                 var task = GetStream();
                                 task.RunSynchronously();
 
-                                using (var source = task.Result)
+                                using (Stream source = task.Result)
                                     source.CopyTo(destination);
 
                                 SetReadData(destination.ToArray());
@@ -119,9 +119,14 @@ namespace NicoServiceAPI.Connection
                         {
                             var data = GetWriteData();
 
-                            using (var source = new MemoryStream(data))
-                            using (var destination = GetStream().Result)
-                                source.CopyTo(destination);
+                            using (Stream source = new MemoryStream(data))
+                            {
+                                var task = GetStream();
+                                task.RunSynchronously();
+
+                                using (Stream destination = task.Result)
+                                    source.CopyTo(destination);
+                            }
                         } break;
 
                     default: throw new Exception("StreamTypeが不正です");

@@ -80,27 +80,50 @@ namespace NicoServiceAPI.Connection
                     new StreamData()
                     {
                         StreamType = StreamType.Write,
-                        GetStream = () => request.GetRequestStreamAsync(),
+                        GetStream = () => new Task<ConnectionStream>(() =>
+                        {
+                            return new ConnectionStream()
+                            {
+                                Stream = request.GetRequestStreamAsync().Result,
+                            };
+                        }),
                     },
                     new StreamData()
                     {
                         StreamType = StreamType.Read,
-                        GetStream = () => new Task<Stream>(() => request.GetResponseAsync().Result.GetResponseStream()),
+                        GetStream = () => new Task<ConnectionStream>(() =>
+                        {
+                            var response = request.GetResponseAsync().Result;
+
+                            return new ConnectionStream()
+                            {
+                                Stream = response.GetResponseStream(),
+                                Size = response.ContentLength,
+                            };
+                        }),
                     },
                 });
         }
 
         /// <summary>ダウンロードストリームを開く</summary>
         /// <param name="Url">ダウンロードURL</param>
-        public Task<Stream> OpenDownloadStream(string Url)
+        public Task<ConnectionStream> OpenDownloadStream(string Url)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(Url);
 
             request.Method = "GET";
             request.CookieContainer = CookieContainer;
 
-            return new Task<Stream>(() => request.GetResponseAsync().Result.GetResponseStream());
-        }
+            return new Task<ConnectionStream>(() =>
+            {
+                var response = request.GetResponseAsync().Result;
 
+                return new ConnectionStream()
+                {
+                    Stream = response.GetResponseStream(),
+                    Size = response.ContentLength,
+                };
+            });
+        }
     }
 }
