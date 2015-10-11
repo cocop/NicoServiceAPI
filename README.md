@@ -11,8 +11,13 @@
 
 
 # 更新履歴
+ver 0.4.2.13  
+ストリーム取得時ダウンロードデータの大きさを取得できるようになりました  
+Streams.GetStream()から取得できるConnectionStreamから取得できます  
+Stream Streams.GetStream()をConnectionStream Streams.GetStream()に変更しました  
+
 ver 0.4.2.12  
-ソースコードを対象フレームワーク .Net Core でコンパイル出来るようにしました。  
+ソースコードを対象フレームワーク .Net Core でコンパイル出来るようにしました  
 各PageクラスのGetStreamメソッドをGetStreamsに改名しました
 
 ver 0.4.2.11  
