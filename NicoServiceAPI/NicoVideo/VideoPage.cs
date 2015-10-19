@@ -105,8 +105,12 @@ namespace NicoServiceAPI.NicoVideo
         {
             var videoAccessStreamData = OpenVideoAccessStreamData();
             var streamDataList = new List<StreamData>();
+            var uploadStreamData = new StreamData[2];
             string postkey = null;
             Response result = null;
+
+            for (int i = 0; i < 2; i++)
+                uploadStreamData[i] = new StreamData();
 
             if (videoAccessStreamData != null)
                 streamDataList.Add(videoAccessStreamData);
@@ -131,7 +135,19 @@ namespace NicoServiceAPI.NicoVideo
                     },
                 });
 
-            var uploadStreamData = context.Client.OpenUploadStreams(videoCache["ms"], ContentType.XML).GetStreamDatas();
+            //コメント投稿ストリームデータ生成
+            var super = streamDataList[0].SetReadData;
+            streamDataList[0].SetReadData = (data) =>
+            {
+                super(data);
+                var streamData = context.Client.OpenUploadStreams(videoCache["ms"], ContentType.XML).GetStreamDatas();
+                for (int i = 0; i < 2; i++)
+                {
+                    uploadStreamData[i].StreamType = streamData[i].StreamType;
+                    uploadStreamData[i].GetStream = streamData[i].GetStream;
+                }
+            };
+
             uploadStreamData[0].GetWriteData = () =>
             {
                 return Encoding.UTF8.GetBytes(
